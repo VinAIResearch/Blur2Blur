@@ -3,7 +3,7 @@
 <!-- <a href="https://arxiv.org/abs/2304.01686"><img src="https://img.shields.io/badge/https%3A%2F%2Farxiv.org%2Fabs%2F2304.01686-arxiv-brightred"></a> -->
 
 <div align="center">
-  <a href="zero1778.github.io" target="_blank">Bang-Dang&nbsp;Pham</a> &emsp; <b>&middot;</b> &emsp;
+  <a href="https://zero1778.github.io" target="_blank">Bang-Dang&nbsp;Pham</a> &emsp; <b>&middot;</b> &emsp;
   <a href="https://scholar.google.com/citations?hl=en&authuser=1&user=-BPaFHcAAAAJ" target="_blank">Phong&nbsp;Tran</a> &emsp; 
   <b>&middot;</b> &emsp;
   <a href="https://sites.google.com/site/anhttranusc/" target="_blank">Anh&nbsp;Tran</a> &emsp; 
@@ -12,7 +12,7 @@
   <b>&middot;</b> &emsp;
   <a href="https://rangnguyen.github.io/" target="_blank">Rang&nbsp;Nguyen</a> &emsp; 
   <b>&middot;</b> &emsp;
-  <a href="gshoai.github.io" target="_blank">Minh&nbsp;Hoai</a> &emsp; 
+  <a href="https://gshoai.github.io" target="_blank">Minh&nbsp;Hoai</a> &emsp; 
   <br> <br>
   <a href="https://www.vinai.io/">VinAI Research, Vietnam</a>
 </div>
