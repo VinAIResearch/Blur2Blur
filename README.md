@@ -7,9 +7,9 @@
 
 <div align="center">
   <a href="https://zero1778.github.io" target="_blank">Bang-Dang&nbsp;Pham</a> &emsp; <b>&middot;</b> &emsp;
-  <a href="https://scholar.google.com/citations?hl=en&authuser=1&user=-BPaFHcAAAAJ" target="_blank">Phong&nbsp;Tran</a> &emsp; 
+  <a href="https://p0lyfish.github.io/portfolio/" target="_blank">Phong&nbsp;Tran</a> &emsp; 
   <b>&middot;</b> &emsp;
-  <a href="https://sites.google.com/site/anhttranusc/" target="_blank">Anh&nbsp;Tran</a> &emsp; 
+  <a href="https://scholar.google.com/citations?user=FYZ5ODQAAAAJ&hl=en" target="_blank">Anh&nbsp;Tran</a> &emsp; 
   <b>&middot;</b> &emsp;
   <a href="https://sites.google.com/view/cuongpham/home" target="_blank">Cuong&nbsp;Pham</a> &emsp; 
   <b>&middot;</b> &emsp;
@@ -148,8 +148,8 @@ For more interactive results, you can take a look at my project page: https://ze
 We would like to extend our gratitude to the following implementations for their contributions to the development of Blur2Blur:
 
 - [pix2pix](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) for providing the foundational code model.
-- [uvcgan2](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) for helping to enhance the baseline code.
-- [MIMO-UNet](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) and [Blur Kernel Extractor](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) for creating the backbone and submodules integral to our project.
+- [uvcgan2](https://github.com/LS4GAN/uvcgan2) for helping to enhance the baseline code.
+- [MIMO-UNet](https://github.com/chosj95/MIMO-UNet) and [Blur Kernel Extractor](https://github.com/VinAIResearch/blur-kernel-space-exploring/tree/main) for creating the backbone and submodules integral to our project.
 
 ## Contacts :mailbox_with_mail:
 If you have any questions or suggestions about this repo, please feel free to contact me (bangdang2000@gmail.com).
