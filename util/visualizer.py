@@ -34,9 +34,7 @@ def save_images(webpage, visuals, image_path, sizeA, aspect_ratio=1.0, width=256
 
     This function will save images stored in 'visuals' to the HTML file specified by 'webpage'.
     """
-    # breakpoint()
     width = 400
-    # img_size = 448
     image_dir, image_dir_realA = webpage.get_image_dir()
     short_path = ntpath.basename(image_path[0])
     name = os.path.splitext(short_path)[0]
@@ -46,20 +44,17 @@ def save_images(webpage, visuals, image_path, sizeA, aspect_ratio=1.0, width=256
     ims_dict = {}
     for label, im_data in visuals.items():
         if label not in ['fake_B_', 'real_A']: continue
-        im_dir = image_dir if label == 'fake_B' else image_dir_realA
+        im_dir = image_dir if label == 'fake_B_' else image_dir_realA
         im = util.tensor2im(im_data)
 
         image_name = '%s.png' % (name)
         save_path = os.path.join(im_dir, image_name)
-        # if (label == 'fake_B'):
         util.save_image(im, save_path, aspect_ratio=aspect_ratio)
         ims.append(image_name)
         txts.append(label)        
-        # breakpoint()
         links.append(im_dir.split("/")[-1] + "/" + image_name)
         if use_wandb:
             ims_dict[label] = wandb.Image(im)
-    # breakpoint()
     webpage.add_images(ims, txts, links, width=width)
     if use_wandb:
         wandb.log(ims_dict)
@@ -217,13 +212,9 @@ class Visualizer():
         if self.use_tensorboard:
             # print("Using tensorboard")
             for k,v in losses.items():
-                # breakpoint()
                 self.writer.add_scalar("Loss_{}/".format(k.split('_')[0]) + k, v, self.current_iter)
-            # writer.add_image('m', img, 0)
-            # vis_img = []
             for label, image in visuals.items():
                 image_numpy = util.tensor2im(image)
-                # vis_img.append(image_numpy)
                 self.writer.add_image("Visualization/" + label, image_numpy, self.current_iter, dataformats='HWC')
             # grid = make_grid([img1, img2, img3], nrow=3)
             self.current_iter += 1

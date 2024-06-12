@@ -5,7 +5,6 @@
 [![youtube](https://img.shields.io/badge/video-Youtube-white?logo=youtube&logoColor=red)](https://www.youtube.com/watch?v=CMjxtElp9g4)
 
 
-
 <div align="center">
   <a href="https://zero1778.github.io" target="_blank">Bang-Dang&nbsp;Pham</a> &emsp; <b>&middot;</b> &emsp;
   <a href="https://scholar.google.com/citations?hl=en&authuser=1&user=-BPaFHcAAAAJ" target="_blank">Phong&nbsp;Tran</a> &emsp; 
@@ -20,12 +19,17 @@
   <br> <br>
   <a href="https://www.vinai.io/">VinAI Research, Vietnam</a>
 </div>
+
 <br>
 <div align="center">
-    <img width="900" alt="teaser" src="assets/teaser.png"/>
+    <img width="1100" alt="teaser" src="assets/teaser1.png"/>
 </div>
 
+<b>TL;DR</b>: Blur2Blur converts images from unknown blur into a known blur. This version retains the original content while applying a different blur kernel that has been effectively trained and captured by supervision deblurring models.
+
+
 > **Abstract**: This paper presents an innovative framework designed to train an image deblurring algorithm tailored to a specific camera device. This algorithm works by transforming a blurry input image, which is challenging to deblur, into another blurry image that is more amenable to deblurring. The transformation process, from one blurry state to another, leverages unpaired data consisting of sharp and blurry images captured by the target camera device. Learning this blur-to-blur transformation is inherently simpler than direct blur-to-sharp conversion, as it primarily involves modifying blur patterns rather than the intricate task of reconstructing fine image details. The efficacy of the proposed approach has been demonstrated through comprehensive experiments on various benchmarks, where it significantly outperforms state-of-the-art methods both quantitatively and qualitatively.
+
 
 Details of the model architecture and experimental results can be found in [our paper](https://arxiv.org/abs/2403.16205):
 
@@ -107,29 +111,33 @@ where:
 ### Training
 To train the model:
 ```.bash
-python train.py --dataset_name dataname --metadata_root path/to/metadata.json
+python train.py --dataroot path/to/dataset \
+                --name exp_name \
+                --model blur2blur --netG mimounet \
+                --batch_size 1 \
+                --dataset_mode unaligned \
+                --norm instance --pool_size 0 \
+                --display_id -1
 ```
 or 
 ```.bash
 bash ./scripts/train.sh
 ```
 
-### Evaluation
+### Using Blur2Blur
 To evaluate the model:
 ```.bash
-python test.py --dataset_name dataname --metadata_root path/to/metadata.json
+python test.py --dataroot datasets/GoPro/b2b_exp/RB2V_GOPRO_filter \
+                --name exp_name \
+                --eval \
+                --model blur2blur --netG mimounet \
+                --checkpoints_dir ckpts/ \
+                --dataset_mode unaligned \
+                --norm instance \
 ```
 or 
 ```.bash
 bash ./scripts/test.sh
-```
-
-### Using Blur2Blur
-After training Blur2Blur, you can use our pretrained model to generate a converted image for each sample using this script:
-```.bash
-python demo.py --pretrained_path path/to/pretrained_Blur2Blur.pth \
-    			--save_path path/to/generated_metadata.json \
-    			
 ```
 
 

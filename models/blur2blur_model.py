@@ -72,12 +72,12 @@ class Blur2BlurModel(BaseModel):
         self.netG = networks.define_G(opt.input_nc, opt.output_nc, opt.ngf, opt.netG, opt.norm,
                                       not opt.no_dropout, opt.init_type, opt.init_gain, self.gpu_ids)
         self.upscale = torch.nn.Upsample(scale_factor=4, mode='bilinear', align_corners=True)
-        if self.isTrain:  # define a discriminator; conditional GANs need to take both input and output images; Therefore, #channels for D is input_nc + output_nc
-
+        self.device = torch.device('cuda:{}'.format(self.gpu_ids[0])) if self.gpu_ids else torch.device('cpu')
+        if self.isTrain:  
+            # define a discriminator; conditional GANs need to take both input and output images; Therefore, #channels for D is input_nc
             self.netD = networks.define_D(opt.input_nc, opt.ndf, opt.netD,
                                           opt.n_layers_D, opt.norm, opt.init_type, opt.init_gain, self.gpu_ids)
 
-        if self.isTrain:
             # define loss functions
             self.criterionGAN = GANLoss(opt.gan_mode).to(self.device)
             self.criterionPerc = VGGLoss().to(self.device)
@@ -88,9 +88,9 @@ class Blur2BlurModel(BaseModel):
 
             self.optimizers.append(self.optimizer_G)
             self.optimizers.append(self.optimizer_D)
-        self.device = torch.device('cuda:{}'.format(self.gpu_ids[0])) if self.gpu_ids else torch.device('cpu')
-        self.netD.to(self.device)
-        self.netD = torch.nn.DataParallel(self.netD)
+            
+            self.netD.to(self.device)
+            self.netD = torch.nn.DataParallel(self.netD)
 
         
         with open("options/generate_blur/augmentation.yml", "r") as f:
@@ -112,15 +112,16 @@ class Blur2BlurModel(BaseModel):
         """
         AtoB = self.opt.direction == 'AtoB'
         self.real_A = input['A' if AtoB else 'B'].to(self.device)
-        self.real_B = input['B' if AtoB else 'A'].to(self.device)
-        
-        self.blur_known = input['C'].to(self.device)
-        self.sharp_known = input['D'].to(self.device)
-        
-        self.image_paths = input['A_paths' if AtoB else 'B_paths']
         self.sizeA = input['sizeA']
- 
+        self.image_paths = input['A_paths' if AtoB else 'B_paths']
+
+
         if self.isTrain:
+            self.real_B = input['B' if AtoB else 'A'].to(self.device)
+            
+            self.blur_known = input['C'].to(self.device)
+            self.sharp_known = input['D'].to(self.device)
+            
             kernel_mean, kernel_sigma = self.genblur(self.sharp_known, self.blur_known)
             self.kernel_real = kernel_mean + kernel_sigma * torch.randn_like(kernel_mean)
             self.real_B = self.genblur.adaptKernel(self.real_B, self.kernel_real)

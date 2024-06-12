@@ -53,6 +53,8 @@ class BaseOptions():
         parser.add_argument('--preprocessB', type=str, default='resize_and_crop', help='scaling and cropping of images at load time [resize_and_crop | crop | scale_width | scale_width_and_crop | none]')
         parser.add_argument('--no_flip', action='store_true', help='if specified, do not flip the images for data augmentation')
         parser.add_argument('--display_winsize', type=int, default=500, help='display window size for both visdom and HTML')
+        parser.add_argument('--ratio', type=float, default=0.6, help='ratio of Blur:Sharp')
+
         # additional parameters
         parser.add_argument('--where_add', type=str, default='all', help='input|all|middle; where to add z in the network G')
         parser.add_argument('--epoch', type=str, default='latest', help='which epoch to load? set to latest to use latest cached model')
