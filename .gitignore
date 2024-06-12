@@ -12,6 +12,7 @@ dist/
 *.png
 torch.egg-info/
 */**/__pycache__
+**/__pycache__
 torch/version.py
 torch/csrc/generic/TensorMethods.cpp
 torch/lib/*.so*

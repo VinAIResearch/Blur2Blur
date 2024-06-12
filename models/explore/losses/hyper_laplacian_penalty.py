@@ -20,8 +20,8 @@ class HyperLaplacianPenalty(nn.Module):
     def forward(self, x):
         gradX = F.conv2d(x, self.Kx, stride=1, padding=1)
         gradY = F.conv2d(x, self.Ky, stride=1, padding=1)
-        grad = torch.sqrt(gradX ** 2 + gradY ** 2 + self.eps)
+        grad = torch.sqrt(gradX**2 + gradY**2 + self.eps)
 
-        loss = (grad ** self.alpha).mean()
+        loss = (grad**self.alpha).mean()
 
         return loss

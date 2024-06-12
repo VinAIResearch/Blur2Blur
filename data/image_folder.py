@@ -4,16 +4,28 @@ We modify the official PyTorch image folder (https://github.com/pytorch/vision/b
 so that this class can load images from both current directory and its subdirectories.
 """
 
-import torch.utils.data as data
-from tqdm import tqdm
-
-from PIL import Image
 import os
 
+import torch.utils.data as data
+from PIL import Image
+from tqdm import tqdm
+
+
 IMG_EXTENSIONS = [
-    '.jpg', '.JPG', '.jpeg', '.JPEG',
-    '.png', '.PNG', '.ppm', '.PPM', '.bmp', '.BMP',
-    '.tif', '.TIF', '.tiff', '.TIFF',
+    ".jpg",
+    ".JPG",
+    ".jpeg",
+    ".JPEG",
+    ".png",
+    ".PNG",
+    ".ppm",
+    ".PPM",
+    ".bmp",
+    ".BMP",
+    ".tif",
+    ".TIF",
+    ".tiff",
+    ".TIFF",
 ]
 
 
@@ -26,28 +38,30 @@ def make_dataset(dir, max_dataset_size=float("inf")):
     if max_dataset_size == -1:
         max_dataset_size = float("inf")
     images = []
-    assert os.path.isdir(dir), '%s is not a valid directory' % dir
+    assert os.path.isdir(dir), "%s is not a valid directory" % dir
 
     for root, _, fnames in sorted(os.walk(dir)):
         for fname in tqdm(fnames):
             if is_image_file(fname):
                 path = os.path.join(root, fname)
                 images.append(path)
-    return images[:min(max_dataset_size, len(images))]
+    return images[: min(max_dataset_size, len(images))]
 
 
 def default_loader(path):
-    return Image.open(path).convert('RGB')
+    return Image.open(path).convert("RGB")
 
 
 class ImageFolder(data.Dataset):
 
-    def __init__(self, root, transform=None, return_paths=False,
-                 loader=default_loader):
+    def __init__(self, root, transform=None, return_paths=False, loader=default_loader):
         imgs = make_dataset(root)
         if len(imgs) == 0:
-            raise(RuntimeError("Found 0 images in: " + root + "\n"
-                               "Supported image extensions are: " + ",".join(IMG_EXTENSIONS)))
+            raise (
+                RuntimeError(
+                    "Found 0 images in: " + root + "\n" "Supported image extensions are: " + ",".join(IMG_EXTENSIONS)
+                )
+            )
 
         self.root = root
         self.imgs = imgs

@@ -1,15 +1,15 @@
-from .gan_loss import GANLoss
-from .vgg_loss import VGGLoss
-from .lpips_loss import LPIPS
-
 import torch
 
+from .gan_loss import GANLoss
+from .lpips_loss import LPIPS
+from .vgg_loss import VGGLoss
+
+__all__ = ['GANLoss', 'LPIPS', 'VGGLoss']
 # pylint: disable=too-many-arguments
 # pylint: disable=redefined-builtin
-def cal_gradient_penalty(
-    netD, real_data, fake_data, device,
-    lambda_gp = 0.1, type = 'mixed', constant = 1.0
-):
+
+
+def cal_gradient_penalty(netD, real_data, fake_data, device, lambda_gp=0.1, type="mixed", constant=1.0):
     """Calculate the gradient penalty loss, used in WGAN-GP
 
     source: https://arxiv.org/abs/1704.00028
@@ -30,33 +30,36 @@ def cal_gradient_penalty(
     if lambda_gp == 0.0:
         return 0.0, None
 
-    if type == 'real':
+    if type == "real":
         interpolatesv = real_data
-    elif type == 'fake':
+    elif type == "fake":
         interpolatesv = fake_data
-    elif type == 'mixed':
-        alpha = torch.rand(real_data.shape[0], 1, device = device)
-        alpha = alpha.expand(
-            real_data.shape[0], real_data.nelement() // real_data.shape[0]
-        ).contiguous().view(*real_data.shape)
+    elif type == "mixed":
+        alpha = torch.rand(real_data.shape[0], 1, device=device)
+        alpha = (
+            alpha.expand(real_data.shape[0], real_data.nelement() // real_data.shape[0])
+            .contiguous()
+            .view(*real_data.shape)
+        )
 
         interpolatesv = alpha * real_data + ((1 - alpha) * fake_data)
     else:
-        raise NotImplementedError('{} not implemented'.format(type))
+        raise NotImplementedError("{} not implemented".format(type))
 
     interpolatesv.requires_grad_(True)
     disc_interpolates = netD(interpolatesv)
 
     gradients = torch.autograd.grad(
-        outputs=disc_interpolates, inputs=interpolatesv,
+        outputs=disc_interpolates,
+        inputs=interpolatesv,
         grad_outputs=[torch.ones(disc_interpolates[idx].size()).to(device) for idx in range(1)],
-        create_graph=True, retain_graph=True, only_inputs=True
+        create_graph=True,
+        retain_graph=True,
+        only_inputs=True,
     )
 
     gradients = gradients[0].view(real_data.size(0), -1)
 
-    gradient_penalty = (
-        ((gradients + 1e-16).norm(2, dim=1) - constant) ** 2
-    ).mean() * lambda_gp
+    gradient_penalty = (((gradients + 1e-16).norm(2, dim=1) - constant) ** 2).mean() * lambda_gp
 
     return gradient_penalty, gradients

@@ -55,7 +55,7 @@ class UnetSkipConnectionBlock(nn.Module):
         super(UnetSkipConnectionBlock, self).__init__()
         self.outermost = outermost
         self.innermost = innermost
-        if type(norm_layer) == functools.partial:
+        if type(norm_layer) is functools.partial:
             use_bias = norm_layer.func == nn.InstanceNorm2d
         else:
             use_bias = norm_layer == nn.InstanceNorm2d
@@ -95,7 +95,7 @@ class UnetSkipConnectionBlock(nn.Module):
 
             self.down = nn.Sequential(*down)
             self.submodule = submodule
-            self.up = nn.Sequential (*up)
+            self.up = nn.Sequential(*up)
 
     def forward(self, x, noise):
 

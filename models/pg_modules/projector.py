@@ -1,12 +1,12 @@
+import timm
 import torch
 import torch.nn as nn
-import timm
 from models.pg_modules.blocks import FeatureFusionBlock
 
 
 def _make_scratch_ccm(scratch, in_channels, cout, expand=False):
     # shapes
-    out_channels = [cout, cout*2, cout*4, cout*8] if expand else [cout]*4
+    out_channels = [cout, cout * 2, cout * 4, cout * 8] if expand else [cout] * 4
 
     scratch.layer0_ccm = nn.Conv2d(in_channels[0], out_channels[0], kernel_size=1, stride=1, padding=0, bias=True)
     scratch.layer1_ccm = nn.Conv2d(in_channels[1], out_channels[1], kernel_size=1, stride=1, padding=0, bias=True)
@@ -25,7 +25,7 @@ def _make_scratch_csm(scratch, in_channels, cout, expand):
     scratch.layer0_csm = FeatureFusionBlock(in_channels[0], nn.ReLU(False))
 
     # last refinenet does not expand to save channels in higher dimensions
-    scratch.CHANNELS = [cout, cout, cout*2, cout*4] if expand else [cout]*4
+    scratch.CHANNELS = [cout, cout, cout * 2, cout * 4] if expand else [cout] * 4
 
     return scratch
 
@@ -59,8 +59,8 @@ def calc_channels(pretrained, inp_res=224):
 def _make_projector(im_res, cout, proj_type, expand=False):
     assert proj_type in [0, 1, 2], "Invalid projection type"
 
-    ### Build pretrained feature network
-    model = timm.create_model('tf_efficientnet_lite0', pretrained=True)
+    # Build pretrained feature network
+    model = timm.create_model("tf_efficientnet_lite0", pretrained=True)
     pretrained = _make_efficientnet(model)
 
     # determine resolution of feature maps, this is later used to calculate the number
@@ -68,23 +68,25 @@ def _make_projector(im_res, cout, proj_type, expand=False):
     # by fixing this to 256, ie., we use the same number of down blocks per discriminator
     # independent of the dataset resolution
     im_res = 256
-    pretrained.RESOLUTIONS = [im_res//4, im_res//8, im_res//16, im_res//32]
+    pretrained.RESOLUTIONS = [im_res // 4, im_res // 8, im_res // 16, im_res // 32]
     pretrained.CHANNELS = calc_channels(pretrained)
 
-    if proj_type == 0: return pretrained, None
+    if proj_type == 0:
+        return pretrained, None
 
-    ### Build CCM
+    # Build CCM
     scratch = nn.Module()
     scratch = _make_scratch_ccm(scratch, in_channels=pretrained.CHANNELS, cout=cout, expand=expand)
     pretrained.CHANNELS = scratch.CHANNELS
 
-    if proj_type == 1: return pretrained, scratch
+    if proj_type == 1:
+        return pretrained, scratch
 
-    ### build CSM
+    # build CSM
     scratch = _make_scratch_csm(scratch, in_channels=scratch.CHANNELS, cout=cout, expand=expand)
 
     # CSM upsamples x2 so the feature map resolution doubles
-    pretrained.RESOLUTIONS = [res*2 for res in pretrained.RESOLUTIONS]
+    pretrained.RESOLUTIONS = [res * 2 for res in pretrained.RESOLUTIONS]
     pretrained.CHANNELS = scratch.CHANNELS
 
     return pretrained, scratch
@@ -105,7 +107,9 @@ class F_RandomProj(nn.Module):
         self.expand = expand
 
         # build pretrained feature network and random decoder (scratch)
-        self.pretrained, self.scratch = _make_projector(im_res=im_res, cout=self.cout, proj_type=self.proj_type, expand=self.expand)
+        self.pretrained, self.scratch = _make_projector(
+            im_res=im_res, cout=self.cout, proj_type=self.proj_type, expand=self.expand
+        )
         self.CHANNELS = self.pretrained.CHANNELS
         self.RESOLUTIONS = self.pretrained.RESOLUTIONS
 
@@ -118,27 +122,29 @@ class F_RandomProj(nn.Module):
 
         # start enumerating at the lowest layer (this is where we put the first discriminator)
         out = {
-            '0': out0,
-            '1': out1,
-            '2': out2,
-            '3': out3,
+            "0": out0,
+            "1": out1,
+            "2": out2,
+            "3": out3,
         }
 
-        if self.proj_type == 0: return out
+        if self.proj_type == 0:
+            return out
 
-        out0_channel_mixed = self.scratch.layer0_ccm(out['0'])
-        out1_channel_mixed = self.scratch.layer1_ccm(out['1'])
-        out2_channel_mixed = self.scratch.layer2_ccm(out['2'])
-        out3_channel_mixed = self.scratch.layer3_ccm(out['3'])
+        out0_channel_mixed = self.scratch.layer0_ccm(out["0"])
+        out1_channel_mixed = self.scratch.layer1_ccm(out["1"])
+        out2_channel_mixed = self.scratch.layer2_ccm(out["2"])
+        out3_channel_mixed = self.scratch.layer3_ccm(out["3"])
 
         out = {
-            '0': out0_channel_mixed,
-            '1': out1_channel_mixed,
-            '2': out2_channel_mixed,
-            '3': out3_channel_mixed,
+            "0": out0_channel_mixed,
+            "1": out1_channel_mixed,
+            "2": out2_channel_mixed,
+            "3": out3_channel_mixed,
         }
 
-        if self.proj_type == 1: return out
+        if self.proj_type == 1:
+            return out
 
         # from bottom to top
         out3_scale_mixed = self.scratch.layer3_csm(out3_channel_mixed)
@@ -147,10 +153,10 @@ class F_RandomProj(nn.Module):
         out0_scale_mixed = self.scratch.layer0_csm(out1_scale_mixed, out0_channel_mixed)
 
         out = {
-            '0': out0_scale_mixed,
-            '1': out1_scale_mixed,
-            '2': out2_scale_mixed,
-            '3': out3_scale_mixed,
+            "0": out0_scale_mixed,
+            "1": out1_scale_mixed,
+            "2": out2_scale_mixed,
+            "3": out3_scale_mixed,
         }
 
         return out

@@ -1,33 +1,72 @@
+import functools
+
 import torch
 import torch.nn as nn
-import functools
-import torch.nn.init as init
 import torch.nn.functional as F
+import torch.nn.init as init
 from models.backbone.arch_util import LayerNorm2d
 from models.backbone.local_arch import Local_Base
+
+
 ###################################################################
 
+
 class G_Unet_add_input(nn.Module):
-    def __init__(self, input_nc, output_nc, nz, num_downs, ngf=64,
-                 norm_layer=None, nl_layer=None, use_dropout=False,
-                 upsample='basic'):
+    def __init__(
+        self,
+        input_nc,
+        output_nc,
+        nz,
+        num_downs,
+        ngf=64,
+        norm_layer=None,
+        nl_layer=None,
+        use_dropout=False,
+        upsample="basic",
+    ):
         super(G_Unet_add_input, self).__init__()
         self.nz = nz
         max_nchn = 8
         # construct unet structure
-        unet_block = UnetBlock(ngf * max_nchn, ngf * max_nchn, ngf * max_nchn,
-                               innermost=True, norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample)
+        unet_block = UnetBlock(
+            ngf * max_nchn,
+            ngf * max_nchn,
+            ngf * max_nchn,
+            innermost=True,
+            norm_layer=norm_layer,
+            nl_layer=nl_layer,
+            upsample=upsample,
+        )
         for i in range(num_downs - 5):
-            unet_block = UnetBlock(ngf * max_nchn, ngf * max_nchn, ngf * max_nchn, unet_block,
-                                   norm_layer=norm_layer, nl_layer=nl_layer, use_dropout=use_dropout, upsample=upsample)
-        unet_block = UnetBlock(ngf * 4, ngf * 4, ngf * max_nchn, unet_block,
-                               norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample)
-        unet_block = UnetBlock(ngf * 2, ngf * 2, ngf * 4, unet_block,
-                               norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample)
-        unet_block = UnetBlock(ngf, ngf, ngf * 2, unet_block,
-                               norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample)
-        unet_block = UnetBlock(input_nc + nz, output_nc, ngf, unet_block,
-                               outermost=True, norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample)
+            unet_block = UnetBlock(
+                ngf * max_nchn,
+                ngf * max_nchn,
+                ngf * max_nchn,
+                unet_block,
+                norm_layer=norm_layer,
+                nl_layer=nl_layer,
+                use_dropout=use_dropout,
+                upsample=upsample,
+            )
+        unet_block = UnetBlock(
+            ngf * 4, ngf * 4, ngf * max_nchn, unet_block, norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample
+        )
+        unet_block = UnetBlock(
+            ngf * 2, ngf * 2, ngf * 4, unet_block, norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample
+        )
+        unet_block = UnetBlock(
+            ngf, ngf, ngf * 2, unet_block, norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample
+        )
+        unet_block = UnetBlock(
+            input_nc + nz,
+            output_nc,
+            ngf,
+            unet_block,
+            outermost=True,
+            norm_layer=norm_layer,
+            nl_layer=nl_layer,
+            upsample=upsample,
+        )
 
         self.model = unet_block
 
@@ -35,35 +74,45 @@ class G_Unet_add_input(nn.Module):
         if self.nz > 0:
             # z_img = z.view(z.size(0), z.size(1), 1, 1).expand(
             #     z.size(0), z.size(1), x.size(2), x.size(3))
-            z_img = F.interpolate(z, size=(x.size(2),  x.size(3)), mode='bilinear', align_corners=False)
+            z_img = F.interpolate(z, size=(x.size(2), x.size(3)), mode="bilinear", align_corners=False)
             x_with_z = torch.cat([x, z_img], 1)
         else:
             x_with_z = x  # no z
 
         return self.model(x_with_z)
 
+
 # Defines the submodule with skip connection.
 # X -------------------identity---------------------- X
 #   |-- downsampling -- |submodule| -- upsampling --|
 class UnetBlock(nn.Module):
-    def __init__(self, input_nc, outer_nc, inner_nc,
-                 submodule=None, outermost=False, innermost=False,
-                 norm_layer=None, nl_layer=None, use_dropout=False, upsample='basic', padding_type='zero'):
+    def __init__(
+        self,
+        input_nc,
+        outer_nc,
+        inner_nc,
+        submodule=None,
+        outermost=False,
+        innermost=False,
+        norm_layer=None,
+        nl_layer=None,
+        use_dropout=False,
+        upsample="basic",
+        padding_type="zero",
+    ):
         super(UnetBlock, self).__init__()
         self.outermost = outermost
         p = 0
         downconv = []
-        if padding_type == 'reflect':
+        if padding_type == "reflect":
             downconv += [nn.ReflectionPad2d(1)]
-        elif padding_type == 'replicate':
+        elif padding_type == "replicate":
             downconv += [nn.ReplicationPad2d(1)]
-        elif padding_type == 'zero':
+        elif padding_type == "zero":
             p = 1
         else:
-            raise NotImplementedError(
-                'padding [%s] is not implemented' % padding_type)
-        downconv += [nn.Conv2d(input_nc, inner_nc,
-                               kernel_size=4, stride=2, padding=p)]
+            raise NotImplementedError("padding [%s] is not implemented" % padding_type)
+        downconv += [nn.Conv2d(input_nc, inner_nc, kernel_size=4, stride=2, padding=p)]
         # downsample is different from upsample
         downrelu = nn.LeakyReLU(0.2, True)
         downnorm = norm_layer(inner_nc) if norm_layer is not None else None
@@ -71,22 +120,19 @@ class UnetBlock(nn.Module):
         upnorm = norm_layer(outer_nc) if norm_layer is not None else None
 
         if outermost:
-            upconv = upsampleLayer(
-                inner_nc * 2, outer_nc, upsample=upsample, padding_type=padding_type)
+            upconv = upsampleLayer(inner_nc * 2, outer_nc, upsample=upsample, padding_type=padding_type)
             down = downconv
             up = [uprelu] + upconv + [nn.Tanh()]
             model = down + [submodule] + up
         elif innermost:
-            upconv = upsampleLayer(
-                inner_nc, outer_nc, upsample=upsample, padding_type=padding_type)
+            upconv = upsampleLayer(inner_nc, outer_nc, upsample=upsample, padding_type=padding_type)
             down = [downrelu] + downconv
             up = [uprelu] + upconv
             if upnorm is not None:
                 up += [upnorm]
             model = down + up
         else:
-            upconv = upsampleLayer(
-                inner_nc * 2, outer_nc, upsample=upsample, padding_type=padding_type)
+            upconv = upsampleLayer(inner_nc * 2, outer_nc, upsample=upsample, padding_type=padding_type)
             down = [downrelu] + downconv
             if downnorm is not None:
                 down += [downnorm]
@@ -108,19 +154,20 @@ class UnetBlock(nn.Module):
             return torch.cat([self.model(x), x], 1)
 
 
-def upsampleLayer(inplanes, outplanes, upsample='basic', padding_type='zero'):
+def upsampleLayer(inplanes, outplanes, upsample="basic", padding_type="zero"):
     # padding_type = 'zero'
-    if upsample == 'basic':
-        upconv = [nn.ConvTranspose2d(
-            inplanes, outplanes, kernel_size=4, stride=2, padding=1)]
-    elif upsample == 'bilinear':
-        upconv = [nn.Upsample(scale_factor=2, mode='bilinear'),
-                  nn.ReflectionPad2d(1),
-                  nn.Conv2d(inplanes, outplanes, kernel_size=3, stride=1, padding=0)]
+    if upsample == "basic":
+        upconv = [nn.ConvTranspose2d(inplanes, outplanes, kernel_size=4, stride=2, padding=1)]
+    elif upsample == "bilinear":
+        upconv = [
+            nn.Upsample(scale_factor=2, mode="bilinear"),
+            nn.ReflectionPad2d(1),
+            nn.Conv2d(inplanes, outplanes, kernel_size=3, stride=1, padding=0),
+        ]
     else:
-        raise NotImplementedError(
-            'upsample layer [%s] not implemented' % upsample)
+        raise NotImplementedError("upsample layer [%s] not implemented" % upsample)
     return upconv
+
 
 ###################################################################
 # Defines the Unet generator.
@@ -128,26 +175,75 @@ def upsampleLayer(inplanes, outplanes, upsample='basic', padding_type='zero'):
 # if |num_downs| == 7, image of size 128x128 will become of size 1x1
 # at the bottleneck
 class G_Unet_add_all(nn.Module):
-    def __init__(self, input_nc, output_nc, nz, num_downs, ngf=64,
-                 norm_layer=None, nl_layer=None, use_dropout=False, upsample='basic'):
+    def __init__(
+        self,
+        input_nc,
+        output_nc,
+        nz,
+        num_downs,
+        ngf=64,
+        norm_layer=None,
+        nl_layer=None,
+        use_dropout=False,
+        upsample="basic",
+    ):
         super(G_Unet_add_all, self).__init__()
         self.nz = nz
         # construct unet structure
-        unet_block = UnetBlock_with_z(ngf * 8, ngf * 8, ngf * 8, nz, None, innermost=True,
-                                      norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample)
-        unet_block = UnetBlock_with_z(ngf * 8, ngf * 8, ngf * 8, nz, unet_block,
-                                      norm_layer=norm_layer, nl_layer=nl_layer, use_dropout=use_dropout, upsample=upsample)
-        for i in range(num_downs - 6):
-            unet_block = UnetBlock_with_z(ngf * 8, ngf * 8, ngf * 8, nz, unet_block,
-                                          norm_layer=norm_layer, nl_layer=nl_layer, use_dropout=use_dropout, upsample=upsample)
-        unet_block = UnetBlock_with_z(ngf * 4, ngf * 4, ngf * 8, nz, unet_block,
-                                      norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample)
-        unet_block = UnetBlock_with_z(ngf * 2, ngf * 2, ngf * 4, nz, unet_block,
-                                      norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample)
         unet_block = UnetBlock_with_z(
-            ngf, ngf, ngf * 2, nz, unet_block, norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample)
-        unet_block = UnetBlock_with_z(input_nc, output_nc, ngf, nz, unet_block,
-                                      outermost=True, norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample)
+            ngf * 8,
+            ngf * 8,
+            ngf * 8,
+            nz,
+            None,
+            innermost=True,
+            norm_layer=norm_layer,
+            nl_layer=nl_layer,
+            upsample=upsample,
+        )
+        unet_block = UnetBlock_with_z(
+            ngf * 8,
+            ngf * 8,
+            ngf * 8,
+            nz,
+            unet_block,
+            norm_layer=norm_layer,
+            nl_layer=nl_layer,
+            use_dropout=use_dropout,
+            upsample=upsample,
+        )
+        for i in range(num_downs - 6):
+            unet_block = UnetBlock_with_z(
+                ngf * 8,
+                ngf * 8,
+                ngf * 8,
+                nz,
+                unet_block,
+                norm_layer=norm_layer,
+                nl_layer=nl_layer,
+                use_dropout=use_dropout,
+                upsample=upsample,
+            )
+        unet_block = UnetBlock_with_z(
+            ngf * 4, ngf * 4, ngf * 8, nz, unet_block, norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample
+        )
+        unet_block = UnetBlock_with_z(
+            ngf * 2, ngf * 2, ngf * 4, nz, unet_block, norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample
+        )
+        unet_block = UnetBlock_with_z(
+            ngf, ngf, ngf * 2, nz, unet_block, norm_layer=norm_layer, nl_layer=nl_layer, upsample=upsample
+        )
+        unet_block = UnetBlock_with_z(
+            input_nc,
+            output_nc,
+            ngf,
+            nz,
+            unet_block,
+            outermost=True,
+            norm_layer=norm_layer,
+            nl_layer=nl_layer,
+            upsample=upsample,
+        )
         self.model = unet_block
 
     def forward(self, x, z):
@@ -155,47 +251,54 @@ class G_Unet_add_all(nn.Module):
 
 
 class UnetBlock_with_z(nn.Module):
-    def __init__(self, input_nc, outer_nc, inner_nc, nz=0,
-                 submodule=None, outermost=False, innermost=False,
-                 norm_layer=None, nl_layer=None, use_dropout=False, upsample='basic', padding_type='zero'):
+    def __init__(
+        self,
+        input_nc,
+        outer_nc,
+        inner_nc,
+        nz=0,
+        submodule=None,
+        outermost=False,
+        innermost=False,
+        norm_layer=None,
+        nl_layer=None,
+        use_dropout=False,
+        upsample="basic",
+        padding_type="zero",
+    ):
         super(UnetBlock_with_z, self).__init__()
         p = 0
         downconv = []
-        if padding_type == 'reflect':
+        if padding_type == "reflect":
             downconv += [nn.ReflectionPad2d(1)]
-        elif padding_type == 'replicate':
+        elif padding_type == "replicate":
             downconv += [nn.ReplicationPad2d(1)]
-        elif padding_type == 'zero':
+        elif padding_type == "zero":
             p = 1
         else:
-            raise NotImplementedError(
-                'padding [%s] is not implemented' % padding_type)
+            raise NotImplementedError("padding [%s] is not implemented" % padding_type)
 
         self.outermost = outermost
         self.innermost = innermost
         self.nz = nz
         input_nc = input_nc + nz
-        downconv += [nn.Conv2d(input_nc, inner_nc,
-                               kernel_size=4, stride=2, padding=p)]
+        downconv += [nn.Conv2d(input_nc, inner_nc, kernel_size=4, stride=2, padding=p)]
         # downsample is different from upsample
         downrelu = nn.LeakyReLU(0.2, True)
         uprelu = nl_layer()
 
         if outermost:
-            upconv = upsampleLayer(
-                inner_nc * 2, outer_nc, upsample=upsample, padding_type=padding_type)
+            upconv = upsampleLayer(inner_nc * 2, outer_nc, upsample=upsample, padding_type=padding_type)
             down = downconv
             up = [uprelu] + upconv + [nn.Tanh()]
         elif innermost:
-            upconv = upsampleLayer(
-                inner_nc, outer_nc, upsample=upsample, padding_type=padding_type)
+            upconv = upsampleLayer(inner_nc, outer_nc, upsample=upsample, padding_type=padding_type)
             down = [downrelu] + downconv
             up = [uprelu] + upconv
             if norm_layer is not None:
                 up += [norm_layer(outer_nc)]
         else:
-            upconv = upsampleLayer(
-                inner_nc * 2, outer_nc, upsample=upsample, padding_type=padding_type)
+            upconv = upsampleLayer(inner_nc * 2, outer_nc, upsample=upsample, padding_type=padding_type)
             down = [downrelu] + downconv
             if norm_layer is not None:
                 down += [norm_layer(inner_nc)]
@@ -215,7 +318,7 @@ class UnetBlock_with_z(nn.Module):
         if self.nz > 0:
             # z_img = z.view(z.size(0), z.size(1), 1, 1).expand(z.size(0), z.size(1), x.size(2), x.size(3))
             # breakpoint()
-            z_img = F.interpolate(z, size=(x.size(2),  x.size(3)), mode='bilinear', align_corners=False)
+            z_img = F.interpolate(z, size=(x.size(2), x.size(3)), mode="bilinear", align_corners=False)
             x_and_z = torch.cat([x, z_img], 1)
         else:
             x_and_z = x
@@ -237,8 +340,18 @@ class UnetBlock_with_z(nn.Module):
 
 
 class G_Unet_add_middle(nn.Module):
-    def __init__(self, input_nc, output_nc, nz, num_downs, ngf=64,
-                 norm_layer=None, nl_layer=None, use_dropout=False, upsample='basic'):
+    def __init__(
+        self,
+        input_nc,
+        output_nc,
+        nz,
+        num_downs,
+        ngf=64,
+        norm_layer=None,
+        nl_layer=None,
+        use_dropout=False,
+        upsample="basic",
+    ):
         super(G_Unet_add_middle, self).__init__()
         lrelu = nn.LeakyReLU(negative_slope=0.1)
         front_RBs = 10
@@ -266,8 +379,17 @@ class G_Unet_add_middle(nn.Module):
         # self.kernel_extractor = KernelExtractor(opt)
 
         # kernel adapter
-        self.adapter = KernelAdapter(ngf, ngf, nz, num_downs, ngf, norm_layer=norm_layer, nl_layer=nl_layer,
-                             use_dropout=use_dropout, upsample=upsample)
+        self.adapter = KernelAdapter(
+            ngf,
+            ngf,
+            nz,
+            num_downs,
+            ngf,
+            norm_layer=norm_layer,
+            nl_layer=nl_layer,
+            use_dropout=use_dropout,
+            upsample=upsample,
+        )
 
         # Reconstruction
         recon_trunk = []
@@ -299,11 +421,22 @@ class G_Unet_add_middle(nn.Module):
         out += base
 
         return out
-        
+
+
 # The function G in the paper
 class KernelAdapter(nn.Module):
-    def __init__(self, input_nc, output_nc, nz, num_downs, ngf=64,
-                 norm_layer=None, nl_layer=None, use_dropout=False, upsample='basic'):
+    def __init__(
+        self,
+        input_nc,
+        output_nc,
+        nz,
+        num_downs,
+        ngf=64,
+        norm_layer=None,
+        nl_layer=None,
+        use_dropout=False,
+        upsample="basic",
+    ):
         super(KernelAdapter, self).__init__()
         # input_nc = opt["nf"]
         # output_nc = opt["nf"]
@@ -330,6 +463,7 @@ class KernelAdapter(nn.Module):
         """Standard forward"""
         # breakpoint()
         return self.model(x, k)
+
 
 class UnetSkipConnectionBlock(nn.Module):
     """Defines the Unet submodule with skip connection.
@@ -362,7 +496,7 @@ class UnetSkipConnectionBlock(nn.Module):
         super(UnetSkipConnectionBlock, self).__init__()
         self.outermost = outermost
         self.innermost = innermost
-        if type(norm_layer) == functools.partial:
+        if type(norm_layer) is functools.partial:
             use_bias = norm_layer.func == nn.InstanceNorm2d
         else:
             use_bias = norm_layer == nn.InstanceNorm2d
@@ -402,7 +536,7 @@ class UnetSkipConnectionBlock(nn.Module):
 
             self.down = nn.Sequential(*down)
             self.submodule = submodule
-            self.up = nn.Sequential (*up)
+            self.up = nn.Sequential(*up)
 
     def forward(self, x, noise):
 
@@ -416,6 +550,7 @@ class UnetSkipConnectionBlock(nn.Module):
             return torch.cat((self.up(torch.cat((self.down(x), noise), dim=1)), x), dim=1)
         else:
             return torch.cat((self.up(self.submodule(self.down(x), noise)), x), dim=1)
+
 
 class ResidualBlock_noBN(nn.Module):
     """Residual block w/o BN
@@ -436,6 +571,7 @@ class ResidualBlock_noBN(nn.Module):
         out = F.relu(self.conv1(x), inplace=False)
         out = self.conv2(out)
         return identity + out
+
 
 def initialize_weights(net_l, scale=1):
     if not isinstance(net_l, list):
@@ -459,39 +595,63 @@ def initialize_weights(net_l, scale=1):
 
 ######################################################################
 
+
 class SimpleGate(nn.Module):
     def forward(self, x):
         x1, x2 = x.chunk(2, dim=1)
         return x1 * x2
 
+
 class NAFBlock(nn.Module):
-    def __init__(self, c, DW_Expand=2, FFN_Expand=2, drop_out_rate=0.):
+    def __init__(self, c, DW_Expand=2, FFN_Expand=2, drop_out_rate=0.0):
         super().__init__()
         dw_channel = c * DW_Expand
-        self.conv1 = nn.Conv2d(in_channels=c, out_channels=dw_channel, kernel_size=1, padding=0, stride=1, groups=1, bias=True)
-        self.conv2 = nn.Conv2d(in_channels=dw_channel, out_channels=dw_channel, kernel_size=3, padding=1, stride=1, groups=dw_channel,
-                               bias=True)
-        self.conv3 = nn.Conv2d(in_channels=dw_channel // 2, out_channels=c, kernel_size=1, padding=0, stride=1, groups=1, bias=True)
-        
+        self.conv1 = nn.Conv2d(
+            in_channels=c, out_channels=dw_channel, kernel_size=1, padding=0, stride=1, groups=1, bias=True
+        )
+        self.conv2 = nn.Conv2d(
+            in_channels=dw_channel,
+            out_channels=dw_channel,
+            kernel_size=3,
+            padding=1,
+            stride=1,
+            groups=dw_channel,
+            bias=True,
+        )
+        self.conv3 = nn.Conv2d(
+            in_channels=dw_channel // 2, out_channels=c, kernel_size=1, padding=0, stride=1, groups=1, bias=True
+        )
+
         # Simplified Channel Attention
         self.sca = nn.Sequential(
             nn.AdaptiveAvgPool2d(1),
-            nn.Conv2d(in_channels=dw_channel // 2, out_channels=dw_channel // 2, kernel_size=1, padding=0, stride=1,
-                      groups=1, bias=True),
+            nn.Conv2d(
+                in_channels=dw_channel // 2,
+                out_channels=dw_channel // 2,
+                kernel_size=1,
+                padding=0,
+                stride=1,
+                groups=1,
+                bias=True,
+            ),
         )
 
         # SimpleGate
         self.sg = SimpleGate()
 
         ffn_channel = FFN_Expand * c
-        self.conv4 = nn.Conv2d(in_channels=c, out_channels=ffn_channel, kernel_size=1, padding=0, stride=1, groups=1, bias=True)
-        self.conv5 = nn.Conv2d(in_channels=ffn_channel // 2, out_channels=c, kernel_size=1, padding=0, stride=1, groups=1, bias=True)
+        self.conv4 = nn.Conv2d(
+            in_channels=c, out_channels=ffn_channel, kernel_size=1, padding=0, stride=1, groups=1, bias=True
+        )
+        self.conv5 = nn.Conv2d(
+            in_channels=ffn_channel // 2, out_channels=c, kernel_size=1, padding=0, stride=1, groups=1, bias=True
+        )
 
         self.norm1 = LayerNorm2d(c)
         self.norm2 = LayerNorm2d(c)
 
-        self.dropout1 = nn.Dropout(drop_out_rate) if drop_out_rate > 0. else nn.Identity()
-        self.dropout2 = nn.Dropout(drop_out_rate) if drop_out_rate > 0. else nn.Identity()
+        self.dropout1 = nn.Dropout(drop_out_rate) if drop_out_rate > 0.0 else nn.Identity()
+        self.dropout2 = nn.Dropout(drop_out_rate) if drop_out_rate > 0.0 else nn.Identity()
 
         self.beta = nn.Parameter(torch.zeros((1, c, 1, 1)), requires_grad=True)
         self.gamma = nn.Parameter(torch.zeros((1, c, 1, 1)), requires_grad=True)
@@ -525,10 +685,12 @@ class NAFNet(nn.Module):
     def __init__(self, img_channel=3, width=16, middle_blk_num=1, enc_blk_nums=[], dec_blk_nums=[]):
         super().__init__()
 
-        self.intro = nn.Conv2d(in_channels=img_channel, out_channels=width, kernel_size=3, padding=1, stride=1, groups=1,
-                              bias=True)
-        self.ending = nn.Conv2d(in_channels=width, out_channels=img_channel, kernel_size=3, padding=1, stride=1, groups=1,
-                              bias=True)
+        self.intro = nn.Conv2d(
+            in_channels=img_channel, out_channels=width, kernel_size=3, padding=1, stride=1, groups=1, bias=True
+        )
+        self.ending = nn.Conv2d(
+            in_channels=width, out_channels=img_channel, kernel_size=3, padding=1, stride=1, groups=1, bias=True
+        )
 
         self.encoders = nn.ModuleList()
         self.decoders = nn.ModuleList()
@@ -538,34 +700,16 @@ class NAFNet(nn.Module):
 
         chan = width
         for num in enc_blk_nums:
-            self.encoders.append(
-                nn.Sequential(
-                    *[NAFBlock(chan) for _ in range(num)]
-                )
-            )
-            self.downs.append(
-                nn.Conv2d(chan, 2*chan, 2, 2)
-            )
+            self.encoders.append(nn.Sequential(*[NAFBlock(chan) for _ in range(num)]))
+            self.downs.append(nn.Conv2d(chan, 2 * chan, 2, 2))
             chan = chan * 2
 
-        self.middle_blks = \
-            nn.Sequential(
-                *[NAFBlock(chan) for _ in range(middle_blk_num)]
-            )
+        self.middle_blks = nn.Sequential(*[NAFBlock(chan) for _ in range(middle_blk_num)])
 
         for num in dec_blk_nums:
-            self.ups.append(
-                nn.Sequential(
-                    nn.Conv2d(chan, chan * 2, 1, bias=False),
-                    nn.PixelShuffle(2)
-                )
-            )
+            self.ups.append(nn.Sequential(nn.Conv2d(chan, chan * 2, 1, bias=False), nn.PixelShuffle(2)))
             chan = chan // 2
-            self.decoders.append(
-                nn.Sequential(
-                    *[NAFBlock(chan) for _ in range(num)]
-                )
-            )
+            self.decoders.append(nn.Sequential(*[NAFBlock(chan) for _ in range(num)]))
 
         self.padder_size = 2 ** len(self.encoders)
 
@@ -600,6 +744,7 @@ class NAFNet(nn.Module):
         mod_pad_w = (self.padder_size - w % self.padder_size) % self.padder_size
         x = F.pad(x, (0, mod_pad_w, 0, mod_pad_h))
         return x
+
 
 class NAFNetLocal(Local_Base, NAFNet):
     def __init__(self, *args, train_size=(1, 3, 256, 256), fast_imp=False, **kwargs):

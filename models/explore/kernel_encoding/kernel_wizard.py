@@ -22,7 +22,7 @@ class KernelExtractor(nn.Module):
         n_blocks = opt["KernelExtractor"]["n_blocks"]
         padding_type = opt["KernelExtractor"]["padding_type"]
         use_dropout = opt["KernelExtractor"]["use_dropout"]
-        if type(norm_layer) == functools.partial:
+        if type(norm_layer) is functools.partial:
             use_bias = norm_layer.func == nn.InstanceNorm2d
         else:
             use_bias = norm_layer == nn.InstanceNorm2d
@@ -39,7 +39,7 @@ class KernelExtractor(nn.Module):
 
         n_downsampling = 5
         for i in range(n_downsampling):  # add downsampling layers
-            mult = 2 ** i
+            mult = 2**i
             inc = min(nf * mult, output_nc)
             ouc = min(nf * mult * 2, output_nc)
             model += [

@@ -1,18 +1,18 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torchvision
-import torch.nn.utils.spectral_norm as spectral_norm
-from torchvision import transforms, models
+from torchvision import models
+
 
 class VGGModel(nn.Module):
     def __init__(self):
         super(VGGModel, self).__init__()
         self.vgg = models.vgg16(pretrained=True)
         # breakpoint()
+
     def get_features(self, model, x):
         features = []
-        target_layers = ['7', '17', '14', '21', '24']
+        target_layers = ["7", "17", "14", "21", "24"]
         # target_layers = ['4', '9', '16', '23', '30']
         for name, layer in model.features._modules.items():
             # breakpoint()
@@ -23,13 +23,18 @@ class VGGModel(nn.Module):
 
     def forward(self, x):
         return self.get_features(self.vgg, x)
-        
+
+
 class VGG19(torch.nn.Module):
     def __init__(self, requires_grad=False):
         super().__init__()
         self.vgg = torchvision.models.vgg19(pretrained=True)
         # breakpoint()
-        self.vgg.load_state_dict(torch.load("/home/dangpb1/Research/CamSpecDeblurring/uvcgan2/real_world_deblurring/advanced_recon/vgg_model.pth"))
+        self.vgg.load_state_dict(
+            torch.load(
+                "/home/dangpb1/Research/CamSpecDeblurring/uvcgan2/real_world_deblurring/advanced_recon/vgg_model.pth"
+            )
+        )
         vgg_pretrained_features = torchvision.models.vgg19(pretrained=True).features
         self.slice1 = torch.nn.Sequential()
         self.slice2 = torch.nn.Sequential()
@@ -107,11 +112,12 @@ class VGG16(nn.Module):
         out = [h_relu1, h_relu2, h_relu3, h_relu4, h_relu5]
         return out
 
+
 class VGGLoss(nn.Module):
     def __init__(self):
         super(VGGLoss, self).__init__()
         self.vgg = VGG16().cuda()
-        self.criterion = nn.L1Loss(reduction='mean')
+        self.criterion = nn.L1Loss(reduction="mean")
         self.weights = [1.0 / 32, 1.0 / 16, 1.0 / 8, 1.0 / 4, 1.0]
         # self.weights = [1.0 / 1, 1.0 / 1, 1.0 / 1, 1.0 / 1, 1.0]
 

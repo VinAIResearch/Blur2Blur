@@ -113,7 +113,7 @@ class NONLocalBlock3D(_NonLocalBlockND):
 
 
 if __name__ == "__main__":
-    for (sub_sample, bn_layer) in [(True, True), (False, False), (True, False), (False, True)]:
+    for sub_sample, bn_layer in [(True, True), (False, False), (True, False), (False, True)]:
         img = torch.zeros(2, 3, 20)
         net = NONLocalBlock1D(3, sub_sample=sub_sample, bn_layer=bn_layer)
         out = net(img)

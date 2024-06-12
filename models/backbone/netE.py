@@ -1,24 +1,20 @@
-import torch
 import torch.nn as nn
 
+
 class E_NLayers(nn.Module):
-    def __init__(self, input_nc, output_nc=1, ndf=64, n_layers=3,
-                 norm_layer=None, nl_layer=None, vaeLike=False):
+    def __init__(self, input_nc, output_nc=1, ndf=64, n_layers=3, norm_layer=None, nl_layer=None, vaeLike=False):
         super(E_NLayers, self).__init__()
         self.vaeLike = vaeLike
 
         kw, padw = 4, 1
-        sequence = [nn.Conv2d(input_nc, ndf, kernel_size=kw,
-                              stride=2, padding=padw), nl_layer()]
+        sequence = [nn.Conv2d(input_nc, ndf, kernel_size=kw, stride=2, padding=padw), nl_layer()]
 
         nf_mult = 1
         nf_mult_prev = 1
         for n in range(1, n_layers):
             nf_mult_prev = nf_mult
             nf_mult = min(2**n, 4)
-            sequence += [
-                nn.Conv2d(ndf * nf_mult_prev, ndf * nf_mult,
-                          kernel_size=kw, stride=2, padding=padw)]
+            sequence += [nn.Conv2d(ndf * nf_mult_prev, ndf * nf_mult, kernel_size=kw, stride=2, padding=padw)]
             if norm_layer is not None:
                 sequence += [norm_layer(ndf * nf_mult)]
             sequence += [nl_layer()]
@@ -37,19 +33,17 @@ class E_NLayers(nn.Module):
             return output, outputVar
         return output
 
+
 class E_ResNet(nn.Module):
-    def __init__(self, input_nc=3, output_nc=1, ndf=64, n_blocks=4,
-                 norm_layer=None, nl_layer=None, vaeLike=False):
+    def __init__(self, input_nc=3, output_nc=1, ndf=64, n_blocks=4, norm_layer=None, nl_layer=None, vaeLike=False):
         super(E_ResNet, self).__init__()
         self.vaeLike = vaeLike
         max_ndf = 4
-        conv_layers = [
-            nn.Conv2d(input_nc, ndf, kernel_size=4, stride=2, padding=1, bias=True)]
+        conv_layers = [nn.Conv2d(input_nc, ndf, kernel_size=4, stride=2, padding=1, bias=True)]
         for n in range(1, n_blocks):
             input_ndf = ndf * min(max_ndf, n)
             output_ndf = ndf * min(max_ndf, n + 1)
-            conv_layers += [BasicBlock(input_ndf,
-                                       output_ndf, norm_layer, nl_layer)]
+            conv_layers += [BasicBlock(input_ndf, output_ndf, norm_layer, nl_layer)]
         conv_layers += [nl_layer(), nn.AvgPool2d(8)]
         if vaeLike:
             self.fc = nn.Sequential(*[nn.Linear(output_ndf, output_nc)])
@@ -71,24 +65,21 @@ class E_ResNet(nn.Module):
 
 
 def conv3x3(in_planes, out_planes):
-    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=1,
-                     padding=1, bias=True)
+    return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=1, padding=1, bias=True)
 
 
 # two usage cases, depend on kw and padw
 def upsampleConv(inplanes, outplanes, kw, padw):
     sequence = []
-    sequence += [nn.Upsample(scale_factor=2, mode='nearest')]
-    sequence += [nn.Conv2d(inplanes, outplanes, kernel_size=kw,
-                           stride=1, padding=padw, bias=True)]
+    sequence += [nn.Upsample(scale_factor=2, mode="nearest")]
+    sequence += [nn.Conv2d(inplanes, outplanes, kernel_size=kw, stride=1, padding=padw, bias=True)]
     return nn.Sequential(*sequence)
 
 
 def meanpoolConv(inplanes, outplanes):
     sequence = []
     sequence += [nn.AvgPool2d(kernel_size=2, stride=2)]
-    sequence += [nn.Conv2d(inplanes, outplanes,
-                           kernel_size=1, stride=1, padding=0, bias=True)]
+    sequence += [nn.Conv2d(inplanes, outplanes, kernel_size=1, stride=1, padding=0, bias=True)]
     return nn.Sequential(*sequence)
 
 
@@ -136,4 +127,3 @@ class BasicBlock(nn.Module):
     def forward(self, x):
         out = self.conv(x) + self.shortcut(x)
         return out
-

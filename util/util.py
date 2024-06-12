@@ -1,16 +1,20 @@
 """This module contains simple helper functions """
+
 from __future__ import print_function
-import torch
-import numpy as np
-from PIL import Image
+
 import os
 
+import numpy as np
+import torch
+from PIL import Image
+
+
 def normalize(data):
-    # breakpoint()
     return (data - np.min(data.numpy())) / (np.max(data.numpy()) - np.min(data.numpy()))
 
+
 def tensor2im(input_image, imtype=np.uint8, min_max=(0, 1)):
-    """"Converts a Tensor array into a numpy image array.
+    """ "Converts a Tensor array into a numpy image array.
 
     Parameters:
         input_image (tensor) --  the input image tensor array
@@ -24,7 +28,7 @@ def tensor2im(input_image, imtype=np.uint8, min_max=(0, 1)):
         image_numpy = image_tensor[0].cpu().float().clamp_(*min_max)  # convert it into a numpy array
         image_numpy = (image_numpy - min_max[0]) / (min_max[1] - min_max[0])
         image_numpy = image_numpy.numpy()
-        
+
         if image_numpy.shape[0] == 1:  # grayscale to RGB
             image_numpy = np.tile(image_numpy, (3, 1, 1))
         # image_numpy = (np.transpose(image_numpy, (1, 2, 0)) + 1) / 2.0 * 255.0  # post-processing: tranpose and scaling
@@ -32,11 +36,10 @@ def tensor2im(input_image, imtype=np.uint8, min_max=(0, 1)):
     else:  # if it is a numpy array, do nothing
         image_numpy = input_image
     # image_numpy = cv2.resize(img, dsize=(54, 140))
-    # breakpoint()
     return image_numpy.astype(imtype)
 
 
-def diagnose_network(net, name='network'):
+def diagnose_network(net, name="network"):
     """Calculate and print the mean of average absolute(gradients)
 
     Parameters:
@@ -82,11 +85,13 @@ def print_numpy(x, val=True, shp=False):
     """
     x = x.astype(np.float64)
     if shp:
-        print('shape,', x.shape)
+        print("shape,", x.shape)
     if val:
         x = x.flatten()
-        print('mean = %3.3f, min = %3.3f, max = %3.3f, median = %3.3f, std=%3.3f' % (
-            np.mean(x), np.min(x), np.max(x), np.median(x), np.std(x)))
+        print(
+            "mean = %3.3f, min = %3.3f, max = %3.3f, median = %3.3f, std=%3.3f"
+            % (np.mean(x), np.min(x), np.max(x), np.median(x), np.std(x))
+        )
 
 
 def mkdirs(paths):
@@ -110,35 +115,3 @@ def mkdir(path):
     """
     if not os.path.exists(path):
         os.makedirs(path)
-
-def tensor2img(tensor, out_type=np.uint8, min_max=(0, 1)):
-    """
-    Converts a torch Tensor into an image Numpy array
-    Input: 4D(B,(3/1),H,W), 3D(C,H,W), or 2D(H,W), any range, RGB channel order
-    Output: 3D(H,W,C) or 2D(H,W), [0,255], np.uint8 (default)
-    """
-
-    # clamp
-    tensor = tensor.squeeze().float().cpu().clamp_(*min_max)
-
-    # to range [0,1]
-    tensor = (tensor - min_max[0]) / (min_max[1] - min_max[0])
-    n_dim = tensor.dim()
-    if n_dim == 4:
-        n_img = len(tensor)
-        img_np = make_grid(tensor, nrow=int(math.sqrt(n_img)), normalize=False).numpy()
-        img_np = np.transpose(img_np[[2, 1, 0], :, :], (1, 2, 0))  # HWC, BGR
-    elif n_dim == 3:
-        img_np = tensor.numpy()
-        img_np = np.transpose(img_np[[2, 1, 0], :, :], (1, 2, 0))  # HWC, BGR
-    elif n_dim == 2:
-        img_np = tensor.numpy()
-    else:
-        raise TypeError(
-            f"Only support 4D, 3D and 2D tensor. But received with dimension:\
-            {n_dim}"
-        )
-    if out_type == np.uint8:
-        img_np = (img_np * 255.0).round()
-        # Important. Unlike matlab, numpy.unit8() WILL NOT round by default.
-    return img_np.astype(out_type)

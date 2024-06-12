@@ -1,9 +1,6 @@
-import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-# from imaginaire.utils.distributed import master_only_print as print
 
 
 @torch.jit.script
@@ -36,8 +33,17 @@ class GANLoss(nn.Module):
         separate_topk (bool): If ``True``, selects top-k for each sample
             separately, otherwise selects top-k among all samples.
     """
-    def __init__(self, gan_mode, target_real_label=1.0, target_fake_label=0.0,
-                 decay_k=.99, min_k=.6, steps_decay = 16000, separate_topk=False):
+
+    def __init__(
+        self,
+        gan_mode,
+        target_real_label=1.0,
+        target_fake_label=0.0,
+        decay_k=0.99,
+        min_k=0.6,
+        steps_decay=16000,
+        separate_topk=False,
+    ):
         super(GANLoss, self).__init__()
         self.real_label = target_real_label
         self.fake_label = target_fake_label
@@ -48,8 +54,8 @@ class GANLoss(nn.Module):
         self.min_k = min_k
         self.steps_decay = steps_decay
         self.separate_topk = separate_topk
-        self.register_buffer('k', torch.tensor(1.0))
-        print('GAN mode: %s' % gan_mode)
+        self.register_buffer("k", torch.tensor(1.0))
+        print("GAN mode: %s" % gan_mode)
 
     def forward(self, iters, dis_output, t_real, dis_update=True, reduce=True):
         r"""GAN loss computation.
@@ -90,8 +96,7 @@ class GANLoss(nn.Module):
             loss (tensor): Loss value.
         """
         if not dis_update:
-            assert t_real, \
-                "The target should be real when updating the generator."
+            assert t_real, "The target should be real when updating the generator."
         # breakpoint()
         nbatch = dis_output.shape[0]
         if not dis_update and self.k < 1:
@@ -119,14 +124,13 @@ class GANLoss(nn.Module):
             # k = math.ceil(self.k * dis_output.size(-1))
             # dis_output, _ = torch.topk(dis_output, k)
 
-        if self.gan_mode == 'non_saturated':
+        if self.gan_mode == "non_saturated":
             target_tensor = self.get_target_tensor(dis_output, t_real)
-            loss = F.binary_cross_entropy_with_logits(dis_output,
-                                                      target_tensor)
-        elif self.gan_mode == 'least_square':
+            loss = F.binary_cross_entropy_with_logits(dis_output, target_tensor)
+        elif self.gan_mode == "least_square":
             target_tensor = self.get_target_tensor(dis_output, t_real)
             loss = 0.5 * F.mse_loss(dis_output, target_tensor)
-        elif self.gan_mode == 'hinge':
+        elif self.gan_mode == "hinge":
             if dis_update:
                 if t_real:
                     loss = fuse_math_min_mean_pos(dis_output)
@@ -134,18 +138,17 @@ class GANLoss(nn.Module):
                     loss = fuse_math_min_mean_neg(dis_output)
             else:
                 loss = -torch.mean(dis_output)
-        elif self.gan_mode == 'wasserstein':
+        elif self.gan_mode == "wasserstein":
             if t_real:
                 loss = -torch.mean(dis_output)
             else:
                 loss = torch.mean(dis_output)
-        elif self.gan_mode == 'softplus':
+        elif self.gan_mode == "softplus":
             target_tensor = self.get_target_tensor(dis_output, t_real)
-            loss = F.binary_cross_entropy_with_logits(dis_output,
-                                                      target_tensor)
+            loss = F.binary_cross_entropy_with_logits(dis_output, target_tensor)
         else:
-            raise ValueError('Unexpected gan_mode {}'.format(self.gan_mode))
-            
+            raise ValueError("Unexpected gan_mode {}".format(self.gan_mode))
+
         if iters % self.steps_decay == 0 and iters > 0:
             # breakpoint()
             self.topk_anneal(nbatch)

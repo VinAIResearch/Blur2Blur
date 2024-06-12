@@ -8,7 +8,7 @@ from torch.autograd import Variable
 class SSIM(torch.nn.Module):
     @staticmethod
     def gaussian(window_size, sigma):
-        gauss = torch.Tensor([exp(-((x - window_size // 2) ** 2) / float(2 * sigma ** 2)) for x in range(window_size)])
+        gauss = torch.Tensor([exp(-((x - window_size // 2) ** 2) / float(2 * sigma**2)) for x in range(window_size)])
         return gauss / gauss.sum()
 
     @staticmethod
@@ -31,8 +31,8 @@ class SSIM(torch.nn.Module):
         sigma2_sq = F.conv2d(img2 * img2, window, padding=window_size // 2, groups=channel) - mu2_sq
         sigma12 = F.conv2d(img1 * img2, window, padding=window_size // 2, groups=channel) - mu1_mu2
 
-        C1 = 0.01 ** 2
-        C2 = 0.03 ** 2
+        C1 = 0.01**2
+        C2 = 0.03**2
 
         ssim_map = ((2 * mu1_mu2 + C1) * (2 * sigma12 + C2)) / ((mu1_sq + mu2_sq + C1) * (sigma1_sq + sigma2_sq + C2))
 

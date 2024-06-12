@@ -22,7 +22,7 @@
 
 <br>
 <div align="center">
-    <img width="1100" alt="teaser" src="assets/teaser1.png"/>
+    <img width="1100" alt="teaser" src="assets/teaser.png"/>
 </div>
 
 <b>TL;DR</b>: Blur2Blur converts images from unknown blur into a known blur. This version retains the original content while applying a different blur kernel that has been effectively trained and captured by supervision deblurring models.

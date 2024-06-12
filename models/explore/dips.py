@@ -29,7 +29,7 @@ class KernelDIP(nn.Module):
 
         n_downsampling = 5
         for i in range(n_downsampling):  # add downsampling layers
-            mult = 2 ** i
+            mult = 2**i
             input_nc = min(nf * mult, kernel_dim)
             output_nc = min(nf * mult * 2, kernel_dim)
             model += [
