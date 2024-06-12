@@ -27,7 +27,7 @@
 
 > **Abstract**: This paper presents an innovative framework designed to train an image deblurring algorithm tailored to a specific camera device. This algorithm works by transforming a blurry input image, which is challenging to deblur, into another blurry image that is more amenable to deblurring. The transformation process, from one blurry state to another, leverages unpaired data consisting of sharp and blurry images captured by the target camera device. Learning this blur-to-blur transformation is inherently simpler than direct blur-to-sharp conversion, as it primarily involves modifying blur patterns rather than the intricate task of reconstructing fine image details. The efficacy of the proposed approach has been demonstrated through comprehensive experiments on various benchmarks, where it significantly outperforms state-of-the-art methods both quantitatively and qualitatively.
 
-Details of the model architecture and experimental results can be found in [our paper](https://arxiv.org/abs/2304.01686):
+Details of the model architecture and experimental results can be found in [our paper](https://arxiv.org/abs/2403.16205):
 
 ```bibtext
 @inproceedings{pham2024blur2blur,
