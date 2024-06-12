@@ -65,7 +65,7 @@ You can download our proposed RB2V dataset by following this script:
 chmod +x ./dataset/download_RB2V.sh
 bash ./dataset/download_RB2V.sh
 ``` 
-Download datasets [REDS](https://seungjunnah.github.io/Datasets/reds.html), [GoPro](https://drive.google.com/file/d/1Zt96gFnpPpuIqeD3QGPlW6fXhkogjuy_/view) and [RSBlur](https://drive.google.com/file/d/1Zt96gFnpPpuIqeD3QGPlW6fXhkogjuy_/view) then unzip to folder `./dataset` and organize following this format:
+Download datasets [REDS](https://seungjunnah.github.io/Datasets/reds.html), [GoPro](https://seungjunnah.github.io/Datasets/gopro.html) and [RSBlur](https://cg.postech.ac.kr/research/rsblur/) then unzip to folder `./dataset` and organize following this format:
 <pre>
 dataset
 ├── Name of Unknown-Known dataset e.g. RB2V-GoPro
@@ -120,15 +120,17 @@ python demo.py --pretrained_path path/to/pretrained_Blur2Blur.pth \
     			--save_path path/to/generated_metadata.json \
     			
 ```
-<!-- And we also provide the pretrained model of our proposed dataset  [RB2V-Street](https://drive.google.com/file/d/1K9VMze1R8v-4ityzGybCnd2dceeZ_FxH/view?usp=sharing), [RB2V-Hand](https://drive.google.com/file/d/1kKaDeiaFO61-k68hUonJJPh0Akf8rQoZ/view?usp=sharing), [RB2V-Face](https://drive.google.com/file/d/13fBfkWf_fpSvZAIxDLXQOEfnweceKKcp/view?usp=sharing)  -->
 
 
 ## Results :trophy:
 For more interactive results, you can take a look at my project page: https://zero1778.github.io/blur2blur/
 
 ## Acknowledgments
+We would like to extend our gratitude to the following implementations for their contributions to the development of Blur2Blur:
 
-Thanks for the model based code from the implementation of Purohit et al.([code](https://github.com/anshulbshah/Blurred-Image-to-Video)), Jin et al.([code](https://github.com/MeiguangJin/Learning-to-Extract-a-Video-Sequence-from-a-Single-Motion-Blurred-Image)).
+- [pix2pix](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) for providing the foundational code model.
+- [uvcgan2](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) for helping to enhance the baseline code.
+- [MIMO-UNet](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) and [Blur Kernel Extractor](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) for creating the backbone and submodules integral to our project.
 
 ## Contacts :mailbox_with_mail:
 If you have any questions or suggestions about this repo, please feel free to contact me (bangdang2000@gmail.com).
