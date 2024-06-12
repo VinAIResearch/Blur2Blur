@@ -2,7 +2,7 @@
 
 [![arXiv](https://img.shields.io/badge/arXiv-2403.16205-red?logo=arxiv&logoColor=red)](https://arxiv.org/abs/2403.16205)
 [![homepage](https://img.shields.io/badge/project-Homepage-blue?logo=Homepage&logoColor=blue)](https://zero1778.github.io/blur2blur/)
-[![youtube](https://img.shields.io/badge/video-Youtube-white?logo=youtube&logoColor=red)](https://arxiv.org/abs/2312.04651)
+[![youtube](https://img.shields.io/badge/video-Youtube-white?logo=youtube&logoColor=red)](https://www.youtube.com/watch?v=CMjxtElp9g4)
 
 
 
@@ -21,9 +21,9 @@
   <a href="https://www.vinai.io/">VinAI Research, Vietnam</a>
 </div>
 <br>
-<!-- <div align="center">
-    <img width="900" alt="teaser" src="assets/HyperCUT_brief.png"/>
-</div> -->
+<div align="center">
+    <img width="900" alt="teaser" src="assets/teaser.png"/>
+</div>
 
 > **Abstract**: This paper presents an innovative framework designed to train an image deblurring algorithm tailored to a specific camera device. This algorithm works by transforming a blurry input image, which is challenging to deblur, into another blurry image that is more amenable to deblurring. The transformation process, from one blurry state to another, leverages unpaired data consisting of sharp and blurry images captured by the target camera device. Learning this blur-to-blur transformation is inherently simpler than direct blur-to-sharp conversion, as it primarily involves modifying blur patterns rather than the intricate task of reconstructing fine image details. The efficacy of the proposed approach has been demonstrated through comprehensive experiments on various benchmarks, where it significantly outperforms state-of-the-art methods both quantitatively and qualitatively.
 
