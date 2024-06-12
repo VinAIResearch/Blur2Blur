@@ -45,8 +45,6 @@ test/.coverage
 test/data/legacy_serialized.pt
 *~
 .idea
-
-*.png
 *.jpg
 *.zip
 *.pth
