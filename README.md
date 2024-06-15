@@ -33,7 +33,7 @@
 
 Details of the model architecture and experimental results can be found in [our paper](https://arxiv.org/abs/2403.16205):
 
-```bibtext
+```bibtex
 @inproceedings{pham2024blur2blur,
  author={Pham, Bang-Dang and Tran, Phong and Tran, Anh and Pham, Cuong and Nguyen, Rang and Hoai, Minh},
  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
