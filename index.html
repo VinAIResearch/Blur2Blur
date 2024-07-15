@@ -932,8 +932,8 @@ bulmaCarousel.attach('#results-carousel', {
           
           <p>
             Given a camera, we aim to develop an algorithm to deblur its captured blurry images. 
-            We assume access to the camera to collect <i>unpaired</i> sets of blurry images (<img src="./img/mathB.png" width="13", height="13" style="margin-bottom: -2px;" alt="B">) and sharp images (<img src="./img/mathS.png" width="10", height="10" style="margin-bottom: -2px;" alt="S">).
-            Furthermore, to concentrate on capturing the blur kernel, we create a known-blur images set (<img src="./img/mathK.png" width="16", height="16" style="margin-bottom: -2px;" alt="K">) by ultilizing the <i>Blur Kernel Extractor</i><sup>[2]</sup> - that can isolate and transfer blur kernels from randomly existing blurry-sharp image pairs to the targeted sharp inputs (<img src="./img/mathS.png" width="10", height="10" style="margin-bottom: -2px;" alt="S">).
+            We assume access to the camera to collect <i>unpaired</i> sets of blurry images (<img src="./img/jpeg_converted/mathB.jpeg" width="13", height="13" style="margin-bottom: -2px;" alt="B">) and sharp images (<img src="./img/jpeg_converted/mathS.jpeg" width="10", height="10" style="margin-bottom: -2px;" alt="S">).
+            Furthermore, to concentrate on capturing the blur kernel, we create a known-blur images set (<img src="./img/jpeg_converted/mathK.jpeg" width="16", height="16" style="margin-bottom: -2px;" alt="K">) by ultilizing the <i>Blur Kernel Extractor</i><sup>[2]</sup> - that can isolate and transfer blur kernels from randomly existing blurry-sharp image pairs to the targeted sharp inputs (<img src="./img/jpeg_converted/mathS.jpeg" width="10", height="10" style="margin-bottom: -2px;" alt="S">).
           </p>
           <div style="text-align: center;">
             <img id="method_definition" width="90%" src="./img/jpeg_converted/Overview.jpeg" alt="B2B_Overview">
@@ -942,7 +942,7 @@ bulmaCarousel.attach('#results-carousel', {
 
           <h3 class="title has-text-centered">Blur2Blur Pipeline</h3>
           <p>
-            The key component in our proposed system is a blur translator that converts unknown-blur images captured by the camera to have the target known-blur presented in (<img src="./img/mathK.png" width="16", height="16" style="margin-bottom: -2px;" alt="K">). 
+            The key component in our proposed system is a blur translator that converts unknown-blur images captured by the camera to have the target known-blur presented in (<img src="./img/jpeg_converted/mathK.jpeg" width="16", height="16" style="margin-bottom: -2px;" alt="K">). 
             This translator is trained using <span style="color: rgb(253, 127, 2);"><b>reconstruction</b></span> and <span style="color: purple;"><b>adversarial</b></span> losses. The converted images have known blur and can be successfully deblurred using the previously trained deblurring model.
           </p>
           <div style="text-align: center;">
@@ -960,7 +960,7 @@ bulmaCarousel.attach('#results-carousel', {
     <h2 class="title is-3">Quantitative Results</h2>
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <image src="img/quantitative.png" class="img-responsive" alt="quantitative">
+        <image src="./img/jpeg_converted/quantitative.jpeg" class="img-responsive" alt="quantitative">
           <br>
         <div class="content has-text-justified">
           <p>
