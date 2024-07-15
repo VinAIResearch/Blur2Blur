@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Deblurring.">
+  <meta name="keywords" content="Blind Image Deblurring, Blur2Blur ">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- <meta property="og:title" content="Blur2Blur: Blur Conversion for Unsupervised Image Deblurring on Unknown Domains" /> -->
+  <meta property="og:description" content="Blur2Blur: Blur Conversion for Unsupervised Image Deblurring on Unknown Domains" />
+  <meta property="og:image" content="https://zero1778.github.io/blur2blur/static/image/thumbnail.png" />
+  <meta property="og:url" content="https://zero1778.github.io/blur2blur/" />
+  <title> Blur2Blur </title>
+  <style>
+    @keyframes shake {
+      0% {transform: translateX(0);}
+      10%, 90% {transform: translateX(-5px);}
+      20%, 80% {transform: translateX(5px);}
+      30%, 50%, 70% {transform: translateX(-5px);}
+      40%, 60% {transform: translateX(5px);}
+      100% {transform: translateX(0);}
+    }
+
+    #blur {
+      /* font-size: 60px; */
+      color: rgb(52,144,197);
+      filter: blur(3x);
+      -webkit-filter: blur(2.5px);
+      animation: shake 1s infinite;
+      display: inline-block;;
+      clear: none;
+    }
+    #shake {
+      /* font-size: 60px; */
+      animation: shake 1s infinite;
+      display: inline-block;;
+      clear: none;
+    }
+    /* .center{
+      /* justify-content:center; */
+    
+    .blur-effect-1 {
+
+    font-size: 4rem;
+    color: red;
+    filter: blur(3px); /* Soft Gaussian Blur */
+    transform: skewY(-23deg);
+    /* margin-bottom: 20px; */
+  }
+  .blur-effect-1::before {
+    transform: skewY(-23deg);
+  }
+
+  .blur-effect-2 {
+    /* filter: blur(2.5px); */
+    color: transparent;
+    color: red;
+    position: absolute; 
+    /* transform: skewY(-23deg);  */ 
+    font-size:4rem;
+    color: red;
+    filter: blur(4.5px);  
+    transform: skewX(-20deg) translateY(-6px)translateX(-120px); 
+    /* margin-bottom: 20px; */
+  }
+  
+  .wrapper {
+  --blur: 2.1;
+  font-size: 4rem;
+  /* margin:1rem; */
+  position:absolute;
+  display:inline-block;
+  /* flex-direction:row; */
+  justify-content:center;
+  /* border-radius:5rem; */
+  /* padding:1rem 0; */
+  transform: skewX(-10deg) skewY(-7deg) translateY(-4px)translateX(7px);;
+  }
+
+  .wrapper .blurred-wrapper {
+    position: relative;
+    /* filter: blur(0.2rem); */
+    filter: blur(0.19rem);
+    transform: scale(
+      var(--blur),
+      0.0001
+    );
+  }
+  .wrapper .blurred-wrapper .blurred {
+    transform: scale(
+      calc( 1/var(--blur) ),
+      10000
+    );
+    color: green;
+    filter: blur(1px); 
+    
+  }
+  .wrapper .blurred-wrapper .blurred::before {
+    /* content: 'Blur'; */
+    position: absolute;
+    
+    /* top: 11; */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* background: linear-gradient(90deg, rgba(0,0,0,0) 0%, #000 70%, rgba(0,0,0,0) 100%); */
+    /* -webkit-background-clip: text; */
+    background-clip: text;
+    color: green;
+    filter: blur(6px);
+    transform: skewX(-4deg) skewY(-10deg);
+    /* transform: skewY(-2deg); Simulating directional movement */
+    
+  }
+  .fixed-size {
+        width: 1000px; /* Set the width of the element */
+        height: auto; /* Set the height of the element */
+        /* background-color: lightblue; Just to make it visible */
+        margin: auto;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+        /* transform: translate(-50%, -50%); */
+        top: 50%; /* Center vertically */
+        left: 50%; /* Center horizontally */
+        /* position: fixed */
+    }
+  
+  </style>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HR3PWVQLH2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-HR3PWVQLH2');
+  </script>
+
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+  
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="./static/css/twentytwenty.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <!-- <link rel="icon" sizes="256x256" href="./static/image/apple.png" type="image/png"/> -->
+  <link rel="icon" sizes="512x512" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>" type="image/png"/>
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <!-- <script src="./static/js/bulma-slider.min.js"></script> -->
+  <script src="./static/js/index.js"></script>
+  <script src="./static/js/jquery.twentytwenty.js"></script>
+  <!-- <script src="./static/js/jquery-3.2.1.min.js"></script> -->
+  <script src="./static/js/jquery.event.move.js"></script>
+  <script src="./static/js/video_comparison.js"></script>
+</head>
+<body>
+
+<!-- <nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a target="_blank" rel="noopener noreferrer" class="navbar-item" href="https://www.viclab.kaist.ac.kr">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          Related Works
+        </a>
+        <div class="navbar-dropdown">
+          <a target="_blank" rel="noopener noreferrer" class="navbar-item" href="https://hangg7.com/dycheck/">
+            Dycheck (Neurips 2022)
+          </a>
+          <a target="_blank" rel="noopener noreferrer" class="navbar-item" href="https://robust-dynrf.github.io/">
+            RoDynRF (CVPR 2023)
+          </a>
+          <a target="_blank" rel="noopener noreferrer" class="navbar-item" href="https://caoang327.github.io/HexPlane/">
+            HexPlane (CVPR 2023)
+          </a>
+          <a target="_blank" rel="noopener noreferrer" class="navbar-item" href="https://wangpeng000.github.io/BAD-NeRF/">
+            BAD-NeRF (CVPR 2023)
+          </a>
+          <a target="_blank" rel="noopener noreferrer" class="navbar-item" href="https://dogyoonlee.github.io/dpnerf/">
+            DP-NeRF (CVPR 2023)
+          </a>
+          <a target="_blank" rel="noopener noreferrer" class="navbar-item" href="https://jaminfong.cn/tineuvox/">
+            TiNeuVox (ACM SIGGRAPH Asia 2022)
+          </a>
+          <a target="_blank" rel="noopener noreferrer" class="navbar-item" href="https://hypernerf.github.io/">
+            HyperNeRF (ACM Trans. Graph. 2021)
+          </a>
+          <a target="_blank" rel="noopener noreferrer" class="navbar-item" href="https://nerfies.github.io/">
+            Nerfies (ICCV 2021)
+          </a>
+          <a target="_blank" rel="noopener noreferrer" class="navbar-item" href="https://www.cs.cornell.edu/~zl548/NSFF/">
+            NSFF (CVPR 2021)
+          </a>
+        </div>
+      </div>
+    </div>d
+
+  </div>
+</nav> -->
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <div class="title is-2 publication-title">
+            <h1 class="is-centered" style="display: inline-block;">
+
+              <span class="blur-effect-2">Blur</span>
+              <span style="color: #4169E1; font-size: 1.5em;"><b>2</b></span>
+              
+              <span class='wrapper'>
+                <div class='blurred-wrapper'>
+                  <div class='blurred'>Blur
+              </div></div></span>
+            </h1>
+
+            <h1><b>Blur Conversion for Unsupervised Image Deblurring on Unknown Domains</b></h1>
+          </div>
+          <!-- <div class="is-size-5 publication-authors">
+            <span class="author-block">This page is under reconstruction</span>
+            <!-- <span class="author-block"><sup>†</sup>Corresponding author</span> -->
+          <!-- </div> --> 
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a target="_blank" rel="noopener noreferrer" href="https://zero1778.github.io">Bang-Dang Pham</a><sup>1</sup>&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>
+            <span class="author-block">
+              <a target="_blank" rel="noopener noreferrer" href="https://p0lyfish.github.io/portfolio/">Phong Tran</a><sup>2</sup>&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>
+            <span class="author-block">
+              <a target="_blank" rel="noopener noreferrer" href="https://scholar.google.com/citations?user=FYZ5ODQAAAAJ&hl=en">Anh Tran</a><sup>1</sup>&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>
+            <span class="author-block">
+              <a target="_blank" rel="noopener noreferrer" href="https://sites.google.com/view/cuongpham/home">Cuong Pham</a><sup>1,3</sup>&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>
+            <span class="author-block">
+              <a target="_blank" rel="noopener noreferrer" href="https://rangnguyen.github.io/">Rang Nguyen</a><sup>1</sup>&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>
+            <span class="author-block">
+              <a target="_blank" rel="noopener noreferrer" href="https://gshoai.github.io/">Minh Hoai</a><sup>1,4</sup>&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>
+      
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>VinAI Research, Vietnam</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>2</sup>Mohamed bin Zayed University of Artificial Intelligence, UAE</span>
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>3</sup>Posts & Telecommunications Inst. of Tech., Vietnam</span>
+          </div>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>4</sup>University of Adelaide, Australia</span>
+          </div>
+          <div class="is-size-4 publication-title">
+            <span style="color:#346dc2"><b>CVPR 2024</b></span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <!-- <span class="link-block">
+                <a target="_blank" rel="noopener noreferrer" href=""
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span> -->
+              <span class="link-block">
+                <a href="https://openaccess.thecvf.com/content/CVPR2024/html/Pham_Blur2Blur_Blur_Conversion_for_Unsupervised_Image_Deblurring_on_Unknown_Domains_CVPR_2024_paper.html" target="_blank" rel="noopener noreferrer"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf" style="color: orangered"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+      
+              
+
+              <span class="link-block">
+                <a target="_blank" rel="noopener noreferrer" href="http://arxiv.org/abs/2403.16205"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+          
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a target="_blank" rel="noopener noreferrer" href="https://github.com/VinAIResearch/Blur2Blur"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+
+              <!-- Poster Link. -->
+              <span class="link-block">
+                <a target="_blank" rel="noopener noreferrer" href="https://drive.google.com/file/d/1xIXCisyeRPWPzBTXVkHVVlj8tHovyQW9/view?usp=sharing"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf" style="color: rgba(7, 107, 239, 0.939)"></i>
+                  </span>
+                  <span>Poster</span>
+                </a>
+              </span>
+
+              <!-- Colab Link. -->
+              <span class="link-block">
+                <a href="https://zero1778.github.io/blur2blur/" target="_blank" rel="noopener noreferrer"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <img src="img/colab.svg">
+                  </span>
+                  <span>&nbsp;Google Colab (TBD)</span>
+                </a>
+              </span>
+              <!-- Video Link. -->
+              <span class="link-block">
+                <a target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/watch?v=CMjxtElp9g4"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube" style="color: rgb(249, 42, 42)"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span>
+
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+    <!-- <div class="column is-5 is-centered"> -->
+      <!-- <h3 class="title is-3" style="text-align: center;">Abstract</h3> -->
+      <!-- <div class="container"> -->
+          <video autoplay loop muted style="margin-top: 0px; ">
+            <source src="img/Teaser1.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        <!-- </div> -->
+    
+          <h2  class="subtitle is-6 has-text-centered" style="font-size: 20px; ">
+            <b><span style="color: red;">T</span><span style="color: blue;">L</span><span style="color: black;">;</span><span style="color: green;">D</span><span style="color: orange;">R</span><span style="color: black;">:</span> </b>
+            Blur2Blur converts images from <span style="color: red;"><b>unknown blur</b></span> into a <span style="color: rgb(38, 138, 38);"><b>known blur</b></span>. This version retains the original content while applying a different blur kernel that has been effectively trained and captured by supervision deblurring models.
+          </h2>
+          <h2 class="subtitle has-text-centered"></h2>
+          <span></span>
+          </h2>
+      </div>
+    </div>
+    <!-- </div> -->
+  </div>
+</section>
+
+<!-- <section class="section" align="center">
+  <div class="container is-widescreen">
+    <div style="text-align: center;">
+      <img src="img/Teaser.jpg"  style="width: 100%;"">
+    </div>
+    <h2 class="title is-3 no-bottom">Demo</h2>
+  
+      <div class="video-container" align="center">
+        <a onclick="togglePlay()">
+          <video class="video" id="viz_input" loop muted src="./static/video/000.mp4" onloadeddata="initVideo()"></video>
+          <canvas height=0 class="videoMerge" id="viz_inputMerge"></canvas>
+        </a>
+      </div>
+    <div class="video-select">
+      <a class="video-item" onclick="changeVideo('./static/video/000.mp4')"><img src="./static/image/000.png"></a>
+      <a class="video-item" onclick="changeVideo('./static/video/011.mp4')"><img src="./static/image/011.png"></a>
+      <a class="video-item" onclick="changeVideo('./static/video/015.mp4')"><img src="./static/image/015.png"></a>
+      <a class="video-item" onclick="changeVideo('./static/video/020.mp4')"><img src="./static/image/020.png"></a>
+    </div>
+  </div>
+</section> -->
+<script>
+bulmaCarousel.attach('#results-carousel', {
+  slidesToShow: 2,
+  loop: true,
+  pagination: false,
+});
+</script>
+
+<section class="section pt-0">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <!-- <div class="column is-full"> -->
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            This paper presents an innovative framework designed to train an image deblurring algorithm tailored to a specific camera device. 
+            This algorithm works by transforming a blurry input image, which is challenging to deblur, into another blurry image that is more amenable to deblurring. 
+            The transformation process, from one blurry state to another, leverages unpaired data consisting of sharp and blurry images captured by the target camera device. 
+            Learning this blur-to-blur transformation is inherently simpler than direct blur-to-sharp conversion, as it primarily involves modifying blur patterns rather than the intricate task of reconstructing fine image details. 
+            The efficacy of the proposed approach has been demonstrated through comprehensive experiments on various benchmarks, where it significantly outperforms state-of-the-art methods both quantitatively and qualitatively.
+          </p>
+          <!-- <p>
+            We present a joint learning scheme of video super-resolution and deblurring, called VSRDB, to restore clean high-resolution (HR) videos from blurry low-resolution (LR) ones.
+            This joint restoration problem has drawn much less attention compared to single restoration problems.
+          </p>
+          <p>
+            We propose a novel flow-guided dynamic filtering (FGDF) and iterative feature refinement with multi-attention (FRMA), which constitutes our VSRDB framework, denoted as FMA-Net.
+            Specifically, our proposed FGDF enables precise estimation of both spatio-temporally-variant degradation and restoration kernels that are aware of motion trajectories through sophisticated motion representation learning.
+            Compared to conventional dynamic filtering, the FGDF enables the FMA-Net to effectively handle large motions into the VSRDB.
+          </p>
+          <p>
+            Additionally, the stacked FRMA blocks trained with our novel temporal anchor (TA) loss, which temporally anchors and sharpens features, refine features in a course-to-fine manner through iterative updates.
+            Extensive experiments demonstrate the superiority of the proposed FMA-Net over state-of-the-art methods in terms of both quantitative and qualitative quality.
+          </p> -->
+
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container is-widescreen" style="margin-top: 10px;">
+    <div style="text-align: center;">
+      <img src="img/Teaser.jpg"  style="width: 100%;"">
+    </div>
+  </div>
+</section>
+
+    <!--/ Abstract. -->
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="column has-text-centered">
+      <!-- <h2 class="title is-3"><span style="color: green;">One</span>-to-<span style="color: red;">Many</span></h2> -->
+      <h2 class="title is-3">Robust to Different <span style="color: red;">Unknown Blur</span> Domains</h2>
+    </div>
+    <div class="container content has-text-centered" style="margin-bottom: 40px;">
+      <!-- <div class="content has-text-justified"> -->
+      <p>
+        <!-- Evaluating the deblurring performance of the <i>NAFNet</i><sup>[1]</sup> model, which was pretrained on the <a target="_blank" rel="noopener noreferrer" href="https://seungjunnah.github.io/Datasets/gopro.html"><u><i><b>GoPro</b></i></u></a> dataset (<span style="color: green; font-family: 'Google Sans', sans-serif; font-size: 1.1em;"><b>Known Blur</b></span>), when applied to various  <span style="color: red; font-family: 'Google Sans', sans-serif; font-size: 1.1em;"><b>Unknown Blur</b></span> datasets.  -->
+        Qualitative results when using deblurring model <i>NAFNet</i><sup>[1]</sup> - was pretrained on the <a target="_blank" rel="noopener noreferrer" href="https://seungjunnah.github.io/Datasets/gopro.html"><u><i><b>GoPro</b></i></u></a> dataset (<span style="color: green; font-family: 'Google Sans', sans-serif; font-size: 1.1em;"><b>Known Blur</b></span>) for various  <span style="color: red; font-family: 'Google Sans', sans-serif; font-size: 1.1em;"><b>Unknown Blur</b></span> datasets. 
+        The <span style="color: black; font-family: 'Google Sans', sans-serif; font-size: 1.1em;"><b>Blur</b></span> column shows original inputs and their Blur2Blur conversions.
+        The <span style="color: black; font-family: 'Google Sans', sans-serif; font-size: 1.1em;"><b>Deblurred</b></span> column displays the results of applying the pretrained model to both the original and the Blur2Blur-converted versions.
+      </p>
+
+      <!-- <p>Evaluate the deblurring performance with pretrained of <i>NAFNet</i> on GoPro dataset (<span style="color: green; font-family: 'Google Sans', sans-serif;"><b>Known Blur</b></span>) in different <span style="color: red; font-family: 'Google Sans', sans-serif;"><b>Unknown Blur</b></span> dataset.<br> -->
+        <!-- Specifically, first column (<span style="color: black; font-family: 'Google Sans', sans-serif;"><b>Blur</b></span>) illustrates the original input and its Blur2Blur converted version. The second column (<span style="color: black; font-family: 'Google Sans', sans-serif;"><b>Deblurred</b></span>) shows deblurred result pretrained model on original and ours Blur2Blur version. -->
+      <!-- <p>Our results on a re-rendered and extended version of the <i>Deblur-NeRF</i> dataset (<a style="text-decoration: underline;" href="https://zenodo.org/records/10847884">Zenodo link</a>)</p> -->
+      <!-- </p> -->
+    <!-- </div> -->
+    <!-- <br> -->
+    </div>
+
+    <!-- ############## REDS ################# -->
+    <div class="container">
+      <!-- <div class="carousel results-carousel" data-slides-to-show="2"> -->
+        <div class="has-text-centered">
+          <!-- <p class="title is-4" style="margin-top: 45%; ; margin-bottom: 4%;">REDS dataset</p> -->
+          <br>
+          <p class="title is-4" style="margin-top: -4%; margin-bottom: 0.5%;">REDS dataset</p> <p class="title is-5" style="margin-bottom: 1%;"><i>(Synthetic Blur)</i></p> 
+          <!-- <br> -->
+          <!-- <p class="title is-5"><i></i></p> -->
+        </div>
+      <div id="results-carousel-horizontal" class="carousel results-carousel">
+        <!-- <div class="item">
+          
+        </div>
+        <div class="has-text-centered">
+          <p class="title is-4" style="margin-top: 45%; ; margin-bottom: 4%;">REDS dataset</p>
+          <p class="title is-5"><i>(Synthetic Blur)</i></p>
+        </div>
+        <div class="item">
+          
+        </div> -->
+        <!-- ------ ITEM 1 ------ -->
+        <div class="item">
+          <div class="twentytwenty-container twentytwenty-container-blur">
+            <div class="cmpcontent">
+              <img src="./qualitative/REDS/blur1_1.jpeg">
+              <!-- <img loading="lazy" src="./qualitative/REDS/blur1_1.jpeg"> -->
+            </div>
+            <div class="cmpcontent">
+              <img src="./qualitative/REDS/blur1_2.jpeg">
+              <!-- <img loading="lazy" src="./qualitative/REDS/blur1_2.jpeg"> -->
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Blur </p>
+        </div>
+        <div class="item">
+          
+          <div class="twentytwenty-container twentytwenty-container-deblur">
+            <div class="cmpcontent">
+              <img src="./qualitative/REDS/deblur1_1.jpeg">
+              <!-- <img loading="lazy" src="./qualitative/REDS/deblur1_1.jpeg"> -->
+            </div>
+            <div class="cmpcontent">
+              <img src="./qualitative/REDS/deblur1_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Deblurred </p>
+        </div>
+        <div class="item">
+          <!-- <p> Groundtruth </p> -->
+          <!-- <div class="twentytwenty-container twentytwenty-container-deblur">
+            <div class="cmpcontent"> -->
+          <img loading="lazy" src="./qualitative/REDS/gt1.jpeg">
+            <!-- </div>
+            <div class="cmpcontent">
+              <img loading="lazy" src="./qualitative/REDS/deblur1_resize.jpeg">
+            </div> -->
+            <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Groundtruth </p>
+        </div>
+        
+        <!-- ------ ITEM 2 ------ -->
+        <div class="item">
+          <div class="twentytwenty-container twentytwenty-container-blur">
+            <div class="cmpcontent">
+              <img loading="lazy" src="./qualitative/REDS/blur2_1.jpeg">
+            </div>
+            <div class="cmpcontent">
+              <img loading="lazy" src="./qualitative/REDS/blur2_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Blur </p>
+        </div>
+        <div class="item">
+          
+          <div class="twentytwenty-container twentytwenty-container-deblur">
+            <div class="cmpcontent">
+              <img loading="lazy" src="./qualitative/REDS/deblur2_1.jpeg">
+            </div>
+            <div class="cmpcontent">
+              <img loading="lazy" src="./qualitative/REDS/deblur2_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Deblurred </p>
+        </div>
+        <div class="item">
+          <img loading="lazy" src="./qualitative/REDS/gt2.jpeg">
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Groundtruth </p>
+        </div>
+
+        <!-- ------ ITEM 3 ------ -->
+        <div class="item">
+          <div class="twentytwenty-container twentytwenty-container-blur">
+            <div class="cmpcontent">
+              <img loading="lazy" src="./qualitative/REDS/blur3_1.jpeg">
+            </div>
+            <div class="cmpcontent">
+              <img loading="lazy" src="./qualitative/REDS/blur3_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Blur </p>
+        </div>
+        <div class="item">
+          
+          <div class="twentytwenty-container twentytwenty-container-deblur">
+            <div class="cmpcontent">
+              <img  src="./qualitative/REDS/deblur3_1.jpeg">
+            </div>
+            <div class="cmpcontent">
+              <img  src="./qualitative/REDS/deblur3_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Deblurred </p>
+        </div>
+        <div class="item">
+          <img  src="./qualitative/REDS/gt3.jpeg">
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Groundtruth </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ############## RSBlur ################# -->
+    <div class="container">
+        <div class="has-text-centered">
+          <br>
+          <p class="title is-4" style="margin-bottom: 0.5%;">RSBlur dataset</p> <p class="title is-5" style="margin-bottom: 1%;"><i>(Real Blur)</i></p> 
+        </div>
+      <div id="results-carousel-horizontal" class="carousel results-carousel">
+        <!-- ------ ITEM 1 ------ -->
+        <div class="item">
+          <div class="twentytwenty-container twentytwenty-container-blur">
+            <div class="cmpcontent">
+              <img  src="./qualitative/RSBlur/blur1_1.jpeg">
+            </div>
+            <div class="cmpcontent">
+              <img  src="./qualitative/RSBlur/blur1_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Blur </p>
+        </div>
+        <div class="item">
+          
+          <div class="twentytwenty-container twentytwenty-container-deblur">
+            <div class="cmpcontent">
+              <img  src="./qualitative/RSBlur/deblur1_1.jpeg">
+            </div>
+            <div class="cmpcontent">
+              <img  src="./qualitative/RSBlur/deblur1_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Deblurred </p>
+        </div>
+        <div class="item">
+          <!-- <p> Groundtruth </p> -->
+          <!-- <div class="twentytwenty-container twentytwenty-container-deblur">
+            <div class="cmpcontent"> -->
+          <img  src="./qualitative/RSBlur/gt1.jpeg">
+            <!-- </div>
+            <div class="cmpcontent">
+              <img loading="lazy" src="./qualitative/REDS/deblur1_resize.jpeg">
+            </div> -->
+            <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Groundtruth </p>
+        </div>
+        
+        <!-- ------ ITEM 2 ------ -->
+        <div class="item">
+          <div class="twentytwenty-container twentytwenty-container-blur">
+            <div class="cmpcontent">
+              <img  src="./qualitative/RSBlur/blur2_1.jpeg">
+            </div>
+            <div class="cmpcontent">
+              <img  src="./qualitative/RSBlur/blur2_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Blur </p>
+        </div>
+        <div class="item">
+          
+          <div class="twentytwenty-container twentytwenty-container-deblur">
+            <div class="cmpcontent">
+              <img  src="./qualitative/RSBlur/deblur2_1.jpeg">
+            </div>
+            <div class="cmpcontent">
+              <img  src="./qualitative/RSBlur/deblur2_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Deblurred </p>
+        </div>
+        <div class="item">
+          <img  src="./qualitative/RSBlur/gt2.jpeg">
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Groundtruth </p>
+        </div>
+
+        <!-- ------ ITEM 3 ------ -->
+        <div class="item">
+          <div class="twentytwenty-container twentytwenty-container-blur">
+            <div class="cmpcontent">
+              <img  src="./qualitative/RSBlur/blur3_1.jpeg">
+            </div>
+            <div class="cmpcontent">
+              <img  src="./qualitative/RSBlur/blur3_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Blur </p>
+        </div>
+        <div class="item">
+          
+          <div class="twentytwenty-container twentytwenty-container-deblur">
+            <div class="cmpcontent">
+              <img  src="./qualitative/RSBlur/deblur3_1.jpeg">
+            </div>
+            <div class="cmpcontent">
+              <img  src="./qualitative/RSBlur/deblur3_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Deblurred </p>
+        </div>
+        <div class="item">
+          <img  src="./qualitative/RSBlur/gt3.jpeg">
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Groundtruth </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ############## RB2V ################# -->
+    <div class="container">
+      <div class="has-text-centered">
+        <br>
+        <p class="title is-4" style="margin-bottom: 0.5%;">RB2V dataset</p> <p class="title is-5" style="margin-bottom: 1%;"><i>(Real Blur)</i></p> 
+      </div>
+      <div id="results-carousel-horizontal" class="carousel results-carousel">
+        <!-- ------ ITEM 1 ------ -->
+        <div class="item">
+          <div class="twentytwenty-container twentytwenty-container-blur">
+            <div class="cmpcontent">
+              <img  src="./qualitative/RB2V/blur1_1.jpeg">
+            </div>
+            <div class="cmpcontent">
+              <img  src="./qualitative/RB2V/blur1_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Blur </p>
+        </div>
+        <div class="item">
+          
+          <div class="twentytwenty-container twentytwenty-container-deblur">
+            <div class="cmpcontent">
+              <img  src="./qualitative/RB2V/deblur1_1.jpeg">
+            </div>
+            <div class="cmpcontent">
+              <img  src="./qualitative/RB2V/deblur1_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Deblurred </p>
+        </div>
+        <div class="item">
+          <!-- <p> Groundtruth </p> -->
+          <!-- <div class="twentytwenty-container twentytwenty-container-deblur">
+            <div class="cmpcontent"> -->
+          <img  src="./qualitative/RB2V/gt1.jpeg">
+            <!-- </div>
+            <div class="cmpcontent">
+              <img loading="lazy" src="./qualitative/REDS/deblur1_resize.jpeg">
+            </div> -->
+            <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Groundtruth </p>
+        </div>
+        
+        <!-- ------ ITEM 2 ------ -->
+        <div class="item">
+          <div class="twentytwenty-container twentytwenty-container-blur">
+            <div class="cmpcontent">
+              <img  src="./qualitative/RB2V/blur2_1.jpeg">
+            </div>
+            <div class="cmpcontent">
+              <img  src="./qualitative/RB2V/blur2_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Blur </p>
+        </div>
+        <div class="item">
+          
+          <div class="twentytwenty-container twentytwenty-container-deblur">
+            <div class="cmpcontent">
+              <img  src="./qualitative/RB2V/deblur2_1.jpeg">
+            </div>
+            <div class="cmpcontent">
+              <img  src="./qualitative/RB2V/deblur2_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Deblurred </p>
+        </div>
+        <div class="item">
+          <img  src="./qualitative/RB2V/gt2.jpeg">
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Groundtruth </p>
+        </div>
+
+        <!-- ------ ITEM 3 ------ -->
+        <div class="item">
+          <div class="twentytwenty-container twentytwenty-container-blur">
+            <div class="cmpcontent">
+              <img  src="./qualitative/RB2V/blur3_1.jpeg">
+            </div>
+            <div class="cmpcontent">
+              <img  src="./qualitative/RB2V/blur3_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Blur </p>
+        </div>
+        <div class="item">
+          
+          <div class="twentytwenty-container twentytwenty-container-deblur">
+            <div class="cmpcontent">
+              <img  src="./qualitative/RB2V/blur3_1.jpeg">
+            </div>
+            <div class="cmpcontent">
+              <img  src="./qualitative/RB2V/deblur3_2.jpeg">
+            </div>
+          </div>
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Deblurred </p>
+        </div>
+        <div class="item">
+          <img  src="./qualitative/RB2V/gt3.jpeg">
+          <p style="margin-top: -4px; font-size: 27px; font-weight: bold; margin-bottom: 7%; text-align: center; font-family: 'Google Sans', sans-serif;"> Groundtruth </p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+    <!-- Paper video. -->
+    <!-- <div class="columns is-centered has-text-centered">
+      <div class="column is-full">
+        <h2 class="title is-3">Video (Comming Soon)</h2>
+        <!--
+        <div class="publication-video">
+          <iframe src="https://www.youtube.com/embed/vYWf33hZXkI"
+                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        </div>
+        -->
+      <!-- </div>
+    </div> -->
+    <!--/ Paper video. -->
+  </div>
+</section>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="is-centered container1">
+      <div class="columns is-full">
+        <div class="column content has-text-centered">
+            <h2 class="title is-3">
+              <!-- <span style="color: green;">Many</span>-to-<span style="color: red;">One</span> -->
+              The <span style="color: green;">Known Blur</span> Selection
+            </h2>
+            <!-- <br> -->
+            <div class="has-text-centered">
+              <p>
+                <!-- To evaluate the <b><span style="color: green;">Many</span>-to-<span style="color: red;">One</span></b> setting,  -->
+                We aim to evaluate a real-world scenario by using different existing <span style="color: green; font-family: 'Google Sans', sans-serif; font-size: 1.1em;"><b>Known Blur</b></span> datasets along with our Blur2Blur model to deblur <span style="color: red; font-family: 'Google Sans', sans-serif; font-size: 1.1em;"><b>Real Unknown Blur</b></span> images (using <i>NAFNet</i> pretrained deblurring model). 
+                These real images are captured by a <b>Samsung Galaxy Note 10 Plus</b>, forming the <b>PhoneCraft</b> dataset (more details are available in our paper).
+              </p>
+              <!-- <p><b>Samsung Galaxy S20</b>, an Android phone with a typical long rolling shutter readout time. Comparing Splatfacto with COLMAP poses to our method with rolling shutter compensated pose optimization and motion blur compensation.</p> -->
+            </div>
+            <br>
+            <img src="qualitative/PhoneCraft/Many2One.jpeg">
+            <br><br>
+            <div class="has-text-centered">
+              <p>
+                The video showcases a comparison of deblurring results on the original images versus our Blur2Blur-converted versions.
+                <br>
+                <i>(Click to Play or Resume all videos)</i>
+              </p>
+              <!-- <p><b>Samsung Galaxy S20</b>, an Android phone with a typical long rolling shutter readout time. Comparing Splatfacto with COLMAP poses to our method with rolling shutter compensated pose optimization and motion blur compensation.</p> -->
+            </div>
+
+            <div class="video-row" style="margin-top: -1px;">
+              <div class="itemvideo">
+                <a onclick="togglePlay()">
+                  <video class="video" id="viz_input" loop muted src="./qualitative/PhoneCraft/RSBlur_1.mp4" onloadeddata="initVideo()" ></video>
+                  <canvas style="width: 100%; height: auto;" class="videoMerge" id="viz_inputMerge"></canvas>
+                </a>
+              </div>
+              <div class="itemvideo">
+                <a onclick="togglePlay()">
+                  <video class="video" id="viz_input1" loop muted src="./qualitative/PhoneCraft/REDS_1.mp4" onloadeddata="initVideo1()" ></video>
+                  <canvas style="width: 100%; height: auto;" class="videoMerge" id="viz_input1Merge"></canvas>
+                </a>
+              </div>
+              <div class="itemvideo">
+                <a onclick="togglePlay()">
+                  <video class="video" id="viz_input2"  loop muted src="./qualitative/PhoneCraft/GoPro_1.mp4" onloadeddata="initVideo2()" ></video>
+                  <canvas style="width: 100%; height: auto;" class="videoMerge" id="viz_input2Merge"></canvas>
+                </a>
+              </div>
+            </div>
+        
+          <h2 class="title is-3">
+            <span>Hand Pose Application</span>
+          </h2>
+            <p>To further assess the enhancement in hand movement recognition, we validated the deblurred videos using the <a target="_blank" rel="noopener noreferrer" href="https://developers.google.com/mediapipe/solutions/vision/hand_landmarker">Hand Pose Estimation</a> model.</p>
+
+
+          <!-- <div class="container"> -->
+            <video controls>
+              <source src="qualitative/PhoneCraft/HandRecognition_1.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          <!-- </div>
+          <!-- <br> -->
+          <h2 class="title is-3">
+            <span>Extremely Real Blur PhoneCraft</span>
+          </h2>
+
+
+          <!-- <div class="container"> -->
+          <div class="video" style="margin-top: -15px;">
+            <video controls>
+              <source src="qualitative/PhoneCraft/ExtremeBlur.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-full">
+        <h2 class="title is-3">How it works</h2>
+        <div class="content has-text-justified">
+          <h3 class="title is-4 has-text-centered">Setting Definition</h3>
+          
+          <p>
+            Given a camera, we aim to develop an algorithm to deblur its captured blurry images. 
+            We assume access to the camera to collect <i>unpaired</i> sets of blurry images (<img src="./img/mathB.png" width="13", height="13" style="margin-bottom: -2px;" alt="B">) and sharp images (<img src="./img/mathS.png" width="10", height="10" style="margin-bottom: -2px;" alt="S">).
+            Furthermore, to concentrate on capturing the blur kernel, we create a known-blur images set (<img src="./img/mathK.png" width="16", height="16" style="margin-bottom: -2px;" alt="K">) by ultilizing the <i>Blur Kernel Extractor</i><sup>[2]</sup> - that can isolate and transfer blur kernels from randomly existing blurry-sharp image pairs to the targeted sharp inputs (<img src="./img/mathS.png" width="10", height="10" style="margin-bottom: -2px;" alt="S">).
+          </p>
+          <div style="text-align: center;">
+            <img id="method_definition" width="90%" src="./img/Overview.jpg" alt="Marigold training scheme"/>
+          </div>
+          <!-- <br> -->
+
+          <h3 class="title has-text-centered">Blur2Blur Pipeline</h3>
+          <p>
+            The key component in our proposed system is a blur translator that converts unknown-blur images captured by the camera to have the target known-blur presented in (<img src="./img/mathK.png" width="16", height="16" style="margin-bottom: -2px;" alt="K">). 
+            This translator is trained using <span style="color: rgb(253, 127, 2);"><b>reconstruction</b></span> and <span style="color: purple;"><b>adversarial</b></span> losses. The converted images have known blur and can be successfully deblurred using the previously trained deblurring model.
+          </p>
+          <div style="text-align: center;">
+            <img id="method_pipeline" width="95%" height="auto" src="./img/B2B_Pipeline.jpg" alt="Marigold inference scheme"/>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-widescreen">
+    <h2 class="title is-3">Quantitative Results</h2>
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <image src="./img/quantitative.png" class="img-responsive" alt="quantitative"><br>
+        <div class="content has-text-justified">
+          <p>
+            Comparison of different deblurring methods on various datasets. 
+            For each test, we report  <span style="color: rgb(139, 4, 92);"><b>PSNR↑</b></span> and <span style="color: rgb(17, 0, 128);"><b>SSIM↑</b></span> scores as evaluation metrics (higher is better for both). 
+            The best scores are in bold and the second best score are in underline. 
+            For a supervised method, NAFNet or Restormer, we assess its upper-bound of deblurring performance by training it on the <i>training set of the source dataset</i>*.
+            <!-- Quantitative comparison on REDS4 for ×4 VSRDB.
+            All results are calculated on the RGB channel. Red and blue colors indicate the best and second-best performance, respectively.
+            The superscript <sup>*</sup> indicates that the model is retrained on the <a target="_blank" rel="noopener noreferrer" href="https://openaccess.thecvf.com/content_CVPRW_2019/html/NTIRE/Nah_NTIRE_2019_Challenge_on_Video_Deblurring_and_Super-Resolution_Dataset_and_CVPRW_2019_paper.html">REDS</a> training  dataset for VSRDB.
+            Refer to the pdf paper linked above for more details on qualitative, quantitative, and ablation studies. -->
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+<!--   <section class="section">
+    <div class="container is-widescreen">
+      <h2 class="title is-3">Qualitative Results</h2>
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-full">
+          <image src="./static/image/qualitative_result.png" class="img-responsive" alt="DDNeRF_Architecture_v21"><br>
+          <div class="content has-text-justified">
+            <p>
+             Visual comparison results of different methods for ×4 VSRDB.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    </section> -->
+<script>
+  $(window).on('load', function() {
+
+    bulmaCarousel.attach('#results-carousel-horizontal-vid', {
+      slidesToScroll: 1,
+      slidesToShow: 3,
+      loop: true,
+      autoplay: true,
+    });
+    
+    bulmaCarousel.attach('#results-carousel-horizontal', {
+      slidesToScroll: 3,
+      slidesToShow: 3,
+      loop: true,
+      autoplay: true,
+    });
+
+    bulmaCarousel.attach('#results-carousel-vertical', {
+      slidesToScroll: 3,
+      slidesToShow: 3,
+      loop: true,
+      autoplay: false,
+    });
+
+    $(".twentytwenty-container-deblur").twentytwenty({
+      before_label: 'NAFNet',
+      after_label: 'NAFNet+B2B',
+      default_offset_pct: 0.5,
+    });
+
+    $(".twentytwenty-container-blur").twentytwenty({
+      before_label: 'Original',
+      after_label: 'Converted',
+      default_offset_pct: 0.5,
+    });
+
+    setTimeout(function() {
+    // Replace the text inside the label with HTML that includes a line break
+    $(".twentytwenty-container-blur .twentytwenty-after-label").html('OriginalBlur');
+    }, 0);
+  });
+</script>
+
+<!-- <section class="section">
+  <div class="container is-widescreen">
+    <div class="columns is-centered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Acknowledgement</h2>
+
+        <div class="content has-text-justified">
+          <p>
+            This work was supported by Institute of Information & communications Technology Planning & Evaluation (IITP) grant funded by the Korea government (MSIT) (No. 2021-0- 00087, Development of high-quality conversion technology for SD/HD low-quality media).
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section> -->
+<section class="section" id="BibTeX">
+  <div class="container is-widescreen content">
+    <h2 class="title">References</h2>
+    <!-- <pre> -->
+      [1] Liangyu Chen et al. <i>"Simple Baselines for Image Restoration"</i>. Proceedings of the European Conference on Computer Vision, 2022.<br>
+      [2] Phong Tran et al. <i>"Explore Image Deblurring via Encoded Blur Kernel Space"</i>. Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2021.
+<!-- </pre> -->
+  </div>
+</section>
+
+
+<section class="section" id="BibTeX">
+  <div class="container is-widescreen content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@inproceedings{pham2024blur2blur,
+  title     = {Blur2Blur: Blur Conversion for Unsupervised Image Deblurring on Unknown Domains},
+  author    = {Pham, Bang-Dang and Tran, Phong and Tran, Anh and Pham, Cuong and Nguyen, Rang and Hoai, Minh},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  year      = {2024}
+}
+</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a target="_blank" rel="noopener noreferrer" class="icon-link"
+         href="https://arxiv.org/pdf/2403.16205.pdf">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a target="_blank" rel="noopener noreferrer" class="icon-link" href="https://github.com/VinAIResearch/Blur2Blur" class="external-link" disabled>
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            We thank the authors of <a target="_blank" rel="noopener noreferrer" href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>  that kindly open sourced the template of this website. 
+            We also extend our thanks to the project pages of <a target="_blank" rel="noopener noreferrer" href="https://marigoldmonodepth.github.io/">MARIGOLD</a>, <a target="_blank" rel="noopener noreferrer" href="https://spectacularai.github.io/3dgs-deblur/">SpectacularAI</a>, <a target="_blank" rel="noopener noreferrer" href="https://kaist-viclab.github.io/fmanet-site/">FMA-Net</a> 
+            which greatly assisted us in developing this project page.
+          </p>
+        </div>
+      </div>
+      <div style="display:none; color:#dedede; font-size:.5em;">
+        <script type="text/javascript" id="clustrmaps" src="//clustrmaps.com/map_v2.js?d=X6Yamx8jfOQCcH8DU6zsTpEnR8W9AMABmwewoSjJYVc"></script>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+</body>
+</html>

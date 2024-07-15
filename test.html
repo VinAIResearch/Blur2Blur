@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Directional Blur Effect</title>
+<style>
+    
+  .blur-container {
+    font-family: 'Google Sans', sans-serif;
+    font-size: 50px;
+    /* font-weight: bold; */
+    text-align: center;
+    margin-top: 50px;
+  }
+
+  .blur-effect-1 {
+    /* filter: blur(2.5px); */
+    /* color: red; */
+    transform: skewY(-23deg);  
+    /* font-size: 2rem; */
+    color: red;
+    filter: blur(3px); /* Soft Gaussian Blur */
+    margin-bottom: 20px;
+    transform: skewX(-23deg);
+
+  }
+
+  .blur-effect-2 {
+  color: transparent;
+  background-clip: text;
+  position: absolute;
+  display: inline-block;
+  /* font-size: 2rem; */
+  /* font-weight: bold; */
+}
+
+.blur-effect-2::before {
+  content: 'Blur';
+  position: absolute;
+  /* top: 0; */
+  /* left: -20px; 
+  right: -20px;  */
+  color: green;
+  background: linear-gradient(
+    to left, 
+    rgba(0, 0, 0, 0) 10%, 
+    green 50%, 
+    rgba(0, 0, 0, 0) 100%
+  );
+  background-clip: text;
+  filter: blur(1px); /* Increase blur */
+  transform: translateX(0%) skewX(-23deg);
+}
+  .wrapper {
+  
+  --blur: 1.6;
+  
+  font-size: 5rem;
+  margin:1rem 0;
+  /* position:relative; */
+  display:flex;
+  flex-direction:row;
+  justify-content:center;
+  border-radius:5rem;
+  padding:1rem 0;
+  transform: skewX(-24deg) skewY(-12deg) translateX(-10px);
+  /* color: red; */
+  
+}
+
+.blurred-wrapper1 {
+  
+  position: absolute;
+  filter: blur(0.25rem);
+  
+  transform: scale(
+    var(--blur),
+    0.001
+  );
+
+    /* transform: skewX(-21deg); */
+    
+}
+.blurred-wrapper2 {
+  
+  position: absolute;
+  filter: blur(1rem);
+  
+  transform: scale(
+    var(--blur),
+    0.0001
+  );
+
+    /* transform: skewX(-21deg); */
+    
+}
+
+.blurred1 {
+  
+  transform: scale(
+    calc( 1/var(--blur) ),
+    1000
+  );
+  color: red;
+    filter: blur(0px); /* Soft Gaussian Blur */
+   
+    
+}
+.blurred2 {
+  
+  transform: scale(
+    calc( 1/var(--blur) ),
+    10000
+  );
+  /* content: "blur"; */
+  /* filter: blur(4px); */
+  /* transform: skewX(-23deg); */
+  /* position: absolute; */
+    top: 11;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* background: linear-gradient(90deg, rgba(0,0,0,0) 0%, #000 70%, rgba(0,0,0,0) 100%);  */
+    /* /* -webkit-background-clip: text; */
+    /* background-clip: text; */
+    color:red;
+    /* filter: blur(2px);  */
+    opacity: 0.9;
+    
+    
+    
+    
+}
+.blurred2::before {
+    /* content: 'Blur'; */
+    position: absolute;
+    top: 11;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* background: linear-gradient(90deg, rgba(0,0,0,0) 0%, #000 70%, rgba(0,0,0,0) 100%); */
+    /* -webkit-background-clip: text; */
+    background-clip: text;
+    color: red;
+    filter: blur(4px);
+    transform: skewX(-20deg);
+    /* transform: skewY(-2deg); Simulating directional movement */
+  }
+  diva{
+  position: relative;
+  width: 50px;
+        height: 50px;
+        margin: 100px;
+        border-radius: 25px;
+        background: url(https://i.imgur.com/pDj7wo9.png);
+        background-size: cover;
+        background-position: left center;
+}
+
+diva::before {
+    background: url(https://i.imgur.com/pDj7wo9.png);
+    background-size: cover;
+    background-position: left center;
+    position: absolute;
+    width: 55px;
+    height: 55px;
+    overflow: hidden;
+    z-index: -1;
+    filter: blur(1px);
+    content: "";
+    border-radius: 100%;
+}
+
+
+
+</style>
+</head>
+<body>
+
+<div class="blur-container">
+  <span class="blur-effect-1">Blur</span><span style="color: #00008B;">2</span>
+  <span class="blur-effect-2"></span>
+</div>
+
+<div class='wrapper'><div class='blurred-wrapper1'><div class='blurred1'>Blur</div></div></div>
+<div class='wrapper'>
+    <div class='blurred-wrapper2'>
+    <div class='blurred2'>Blur</div>
+    </div>
+    <div class='still'><span style="color: red;">Blur</span></div>
+</div>
+
+</body>
+</html>
