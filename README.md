@@ -75,11 +75,8 @@ pip install -r requirements.txt
 ## Datasets :floppy_disk:
 
 ### Data Preperation
-You can download our proposed RB2V dataset by following this script:
-```
-chmod +x ./dataset/download_RB2V.sh
-bash ./dataset/download_RB2V.sh
-``` 
+You can download the RB2V dataset from the [HyperCUT repo](https://github.com/VinAIResearch/HyperCUT/).
+
 Download datasets [REDS](https://seungjunnah.github.io/Datasets/reds.html), [GoPro](https://seungjunnah.github.io/Datasets/gopro.html) and [RSBlur](https://cg.postech.ac.kr/research/rsblur/) then unzip to folder `./dataset` and organize following this format:
 <pre>
 dataset
@@ -145,6 +142,12 @@ bash ./scripts/test.sh
 
 ## Results :trophy:
 For more interactive results, you can take a look at my project page: https://zero1778.github.io/blur2blur/
+
+## License
+
+The PhoneCraft dataset is licensed under the permissive license **BSD 3-Clause**.
+
+The source code of the Blur2Blur algorithm is licensed under the **GPLv3** licence.
 
 ## Acknowledgments
 We would like to extend our gratitude to the following implementations for their contributions to the development of Blur2Blur:
