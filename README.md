@@ -75,11 +75,8 @@ pip install -r requirements.txt
 ## Datasets :floppy_disk:
 
 ### Data Preperation
-You can download our proposed RB2V dataset by following this script:
-```
-chmod +x ./dataset/download_RB2V.sh
-bash ./dataset/download_RB2V.sh
-``` 
+You can download the RB2V dataset from [HyperCUT](https://github.com/VinAIResearch/HyperCUT) repo.
+
 Download datasets [REDS](https://seungjunnah.github.io/Datasets/reds.html), [GoPro](https://seungjunnah.github.io/Datasets/gopro.html) and [RSBlur](https://cg.postech.ac.kr/research/rsblur/) then unzip to folder `./dataset` and organize following this format:
 <pre>
 dataset
