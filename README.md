@@ -108,6 +108,12 @@ where:
 
 PhoneCraft, a real-world testing dataset, can be accessed by this [link](https://drive.google.com/drive/folders/1pe04sO5ZtKdATCCKX_BGsiph0h5kETn5).
 
+> ***By downloading the PhoneCraft dataset, USER agrees:***
+>   
+> * to use the dataset for research or educational purposes only.
+> * to not distribute the dataset or part of the dataset in any original or modified form.
+> * and to cite our paper whenever the dataset is used to help produce published results.
+
 ## Blur2Blur :rocket:
 
 ### Training
